@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吃什麼輪盤 - 雙模式版</title>
+    <style>
+        :root {
+            --primary-out: #ff4757;
+            --primary-home: #2ed573;
+            --bg-color: #f4f7f6;
+        }
+
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* 頂部模式切換 */
+        .mode-switch {
+            display: flex;
+            background: #ddd;
+            border-radius: 50px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .mode-btn {
+            padding: 10px 30px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: 0.3s;
+            color: #666;
+        }
+
+        .mode-btn.active.out { background: var(--primary-out); color: white; }
+        .mode-btn.active.home { background: var(--primary-home); color: white; }
+
+        /* 輪盤主體 */
+        .wheel-container {
+            position: relative;
+            width: 360px;
+            height: 360px;
+            margin-top: 20px;
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: transform 4s cubic-bezier(0.15, 0, 0.2, 1);
+            background: white;
+        }
+
+        .spin-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: #333;
+            color: white;
+            border-radius: 50%;
+            border: 4px solid white;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .arrow {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #333;
+            z-index: 11;
+        }
+
+        /* 結果顯示 */
+        .result {
+            margin: 25px 0;
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            height: 40px;
+            text-align: center;
+        }
+
+        /* 設定面板 (可隱藏) */
+        .settings-panel {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: max-height 0.3s ease-out;
+            max-height: 0; /* 預設隱藏 */
+        }
+
+        .settings-panel.show {
+            max-height: 500px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-settings-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #34495e;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .hint { font-size: 12px; color: #999; margin-bottom: 5px; }
+
+    </style>
+</head>
+<body>
+
+    <h1 id="mainTitle">今天吃什麼？</h1>
+
+    <!-- 模式切換 -->
+    <div class="mode-switch">
+        <button class="mode-btn active out" id="btnOut" onclick="switchMode('out')">外出去吃</button>
+        <button class="mode-btn home" id="btnHome" onclick="switchMode('home')">在家裡吃</button>
+    </div>
+
+    <!-- 隱藏/顯示設定按鈕 -->
+    <button class="toggle-settings-btn" onclick="toggleSettingsPanel()">⚙️ 設定選項</button>
+
+    <!-- 設定面板 -->
+    <div class="settings-panel" id="settingsPanel">
+        <p class="hint">請輸入選項（每行一個，最多 7 字）：</p>
+        <textarea id="inputOptions"></textarea>
+        <button class="save-btn" onclick="saveAndHide()">完成並儲存</button>
+    </div>
+
+    <!-- 輪盤區 -->
+    <div class="wheel-container">
+        <div class="arrow"></div>
+        <canvas id="wheel" width="500" height="500"></canvas>
+        <div class="spin-btn" id="spinBtn">GO</div>
+    </div>
+
+    <div class="result" id="resultText"></div>
+
+    <script>
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+        const resultText = document.getElementById('resultText');
+        const inputArea = document.getElementById('inputOptions');
+        const settingsPanel = document.getElementById('settingsPanel');
+        
+        // 資料儲存
+        let currentMode = 'out'; // 'out' 或 'home'
+        const data = {
+            out: ["拉麵", "滷肉飯", "義大利麵", "火鍋", "壽司", "漢堡", "炸雞", "牛排", "咖哩飯", "燒肉"],
+            home: ["煮泡麵", "水餃", "炒飯", "外送麥當勞", "自己煮義大利麵", "氣炸鍋料理", "便利商店"]
+        };
+
+        let currentRotation = 0;
+        let isSpinning = false;
+        const colors = ["#ff9f43", "#ff6b6b", "#48dbfb", "#1dd1a1", "#feca57", "#5f27cd", "#54a0ff", "#00d2d3", "#ff9ff3", "#ff4757"];
+
+        // 初始化
+        updateUI();
+
+        function switchMode(mode) {
+            if (isSpinning) return;
+            currentMode = mode;
+            
+            // UI 按鈕狀態
+            document.getElementById('btnOut').classList.toggle('active', mode === 'out');
+            document.getElementById('btnHome').classList.toggle('active', mode === 'home');
+            
+            updateUI();
+        }
+
+        function updateUI() {
+            inputArea.value = data[currentMode].join('\n');
+            drawWheel();
+            resultText.innerText = "";
+        }
+
+        function toggleSettingsPanel() {
+            settingsPanel.classList.toggle('show');
+        }
+
+        function saveAndHide() {
+            const lines = inputArea.value.split('\n').map(s => s.trim()).filter(s => s !== "");
+            if (lines.length < 2) {
+                alert("請至少輸入兩個選項！");
+                return;
+            }
+            data[currentMode] = lines;
+            drawWheel();
+            settingsPanel.classList.remove('show');
+        }
+
+        function drawWheel() {
+            const options = data[currentMode];
+            const numOptions = options.length;
+            const arcSize = (2 * Math.PI) / numOptions;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            options.forEach((text, i) => {
+                const angle = i * arcSize;
+                
+                // 畫扇形
+                ctx.beginPath();
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.moveTo(250, 250);
+                ctx.arc(250, 250, 250, angle, angle + arcSize);
+                ctx.fill();
+                ctx.strokeStyle = "rgba(255,255,255,0.4)";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // 畫文字
+                ctx.save();
+                ctx.translate(250, 250);
+                ctx.rotate(angle + arcSize / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "white";
+
+                // 動態字體大小 (最多 7 字)
+                let fontSize = 28;
+                const safeText = text.substring(0, 7); // 強制截斷
+                
+                if (safeText.length > 5) fontSize = 20;
+                else if (safeText.length > 3) fontSize = 24;
+                
+                // 如果選項太多，字體也要縮小
+                if (numOptions > 10) fontSize -= 4;
+                if (numOptions > 15) fontSize -= 4;
+
+                ctx.font = `bold ${fontSize}px "Microsoft JhengHei"`;
+                ctx.fillText(safeText, 230, 10);
+                ctx.restore();
+            });
+        }
+
+        function spin() {
+            if (isSpinning) return;
+            const options = data[currentMode];
+            
+            isSpinning = true;
+            resultText.innerText = "正在決定...";
+            
+            const randomExtra = Math.floor(Math.random() * 360);
+            const totalSpin = 2160 + randomExtra; 
+            currentRotation += totalSpin;
+            
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(() => {
+                isSpinning = false;
+                const actualAngle = (currentRotation % 360);
+                const numOptions = options.length;
+                const arcSizeDeg = 360 / numOptions;
+                
+                // 計算結果 (指針在上方 270度)
+                const winningIndex = Math.floor(((360 - (actualAngle % 360) + 270) % 360) / arcSizeDeg);
+                
+                resultText.innerHTML = `🎉 今天吃：<span style="color:${currentMode==='out'?'var(--primary-out)':'var(--primary-home)'}">${options[winningIndex]}</span>`;
+            }, 4000);
+        }
+
+        document.getElementById('spinBtn').addEventListener('click', spin);
+    </script>
+</body>
+</html>
