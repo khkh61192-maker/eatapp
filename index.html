@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>吃啥 - iOS Pro</title>
+    <title>吃啥 - iOS Pro Max</title>
     <style>
         :root {
             --ios-bg: #000000;
@@ -14,100 +14,100 @@
             --ios-gray: #3A3A3C;
             --ios-gray-text: #8E8E93;
             --ios-text: #FFFFFF;
-            --shadow: 0 4px 15px rgba(0,0,0,0.4);
-            --radius-main: 20px;
+            --radius-main: 24px;
             --radius-btn: 14px;
         }
 
         body {
             background-color: var(--ios-bg);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             margin: 0;
-            padding: 20px 10px;
+            padding: env(safe-area-inset-top) 15px 20px 15px;
             color: var(--ios-text);
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 數據看版 */
+        /* 頂部數據看板 */
         .header {
             display: flex;
             width: 100%;
-            max-width: 400px;
+            max-width: 360px;
             gap: 12px;
-            margin-bottom: 20px;
+            margin: 20px 0;
         }
 
         .stat-box {
             flex: 1;
             background: var(--ios-card);
-            padding: 12px;
+            padding: 15px 10px;
             border-radius: var(--radius-main);
             text-align: center;
         }
 
-        .stat-label { font-size: 10px; color: var(--ios-gray-text); font-weight: 600; text-transform: uppercase; margin-bottom: 2px; }
-        .stat-value { font-size: 22px; font-weight: 700; color: var(--ios-blue); }
+        .stat-label { font-size: 11px; color: var(--ios-gray-text); font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--ios-blue); }
 
-        /* 麻仔台主機 (7x5) */
+        /* 長方形機台 (4x5) */
         .machine-container {
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             grid-template-rows: repeat(5, 1fr);
-            gap: 5px;
+            gap: 8px;
             background: var(--ios-card);
-            padding: 10px;
-            border-radius: 24px;
+            padding: 12px;
+            border-radius: 30px;
             width: 100%;
-            max-width: 400px;
-            aspect-ratio: 7 / 5;
-            box-sizing: border-box;
-            box-shadow: var(--shadow);
+            max-width: 340px;
+            aspect-ratio: 4 / 5;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             position: relative;
         }
 
         .cell {
             background: var(--ios-item);
-            border-radius: 8px;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             transition: all 0.1s ease;
-            border: 1px solid rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .cell.active {
             background: var(--ios-blue);
-            box-shadow: 0 0 15px var(--ios-blue);
+            box-shadow: 0 0 20px var(--ios-blue);
             transform: scale(1.05);
             z-index: 5;
+            border-color: #fff;
         }
 
-        .cell-icon { font-size: 18px; }
-        .cell-food { font-size: 8px; color: var(--ios-gray-text); margin-top: 2px; }
+        .cell-icon { font-size: 22px; }
+        .cell-food { font-size: 9px; color: var(--ios-gray-text); margin-top: 3px; font-weight: 500; }
         .active .cell-food { color: #fff; }
 
-        /* 正中間控制區 */
+        /* 正中間 2x3 控制區 */
         .center-control {
-            grid-column: 2 / 7;
+            grid-column: 2 / 4;
             grid-row: 2 / 5;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* 垂直置中 */
-            gap: 15px; /* 控制結果文字與切換鈕的距離 */
+            justify-content: center;
+            gap: 20px;
         }
 
         .result-display {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             color: var(--ios-red);
             text-align: center;
-            min-height: 24px;
+            min-height: 28px;
+            line-height: 1.2;
         }
 
         /* iOS Segmented Control */
@@ -116,13 +116,13 @@
             border-radius: 10px;
             display: flex;
             padding: 2px;
-            width: 140px;
+            width: 130px;
             position: relative;
         }
 
         .segment-btn {
             flex: 1;
-            padding: 6px 0;
+            padding: 7px 0;
             font-size: 13px;
             font-weight: 600;
             color: #fff;
@@ -141,25 +141,25 @@
             height: calc(100% - 4px);
             background: #fff;
             border-radius: 8px;
-            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .mode-home .segment-slider { transform: translateX(100%); }
 
-        /* 押注區 (2排 6格) */
+        /* 押注區 (2x6) */
         .bet-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
             gap: 8px;
             width: 100%;
-            max-width: 400px;
-            margin-top: 20px;
+            max-width: 360px;
+            margin-top: 25px;
         }
 
         .bet-card {
             background: var(--ios-card);
             border-radius: 14px;
-            padding: 8px 0;
+            padding: 10px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -172,20 +172,20 @@
         .bet-card.active-bet { border-color: var(--ios-blue); }
 
         .bet-icon { font-size: 20px; }
-        .bet-count { font-size: 12px; font-weight: 700; color: var(--ios-blue); margin-top: 2px; }
+        .bet-count { font-size: 12px; font-weight: 700; color: var(--ios-blue); margin-top: 3px; }
 
-        /* iOS 矩形按鈕區 */
+        /* iOS 矩形按鈕 */
         .action-container {
             display: flex;
             width: 100%;
-            max-width: 400px;
+            max-width: 360px;
             gap: 12px;
             margin-top: 25px;
         }
 
         .ios-btn {
             flex: 1;
-            height: 54px;
+            height: 56px;
             border-radius: var(--radius-btn);
             font-size: 17px;
             font-weight: 600;
@@ -194,47 +194,45 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.2s;
         }
 
         .ios-btn:active { opacity: 0.7; }
-
-        .btn-go { background: var(--ios-blue); color: #fff; }
+        .btn-go { background: var(--ios-blue); color: #fff; box-shadow: 0 4px 15px rgba(10, 132, 255, 0.3); }
         .btn-clear { background: var(--ios-gray); color: #fff; }
-        .btn-go:disabled { background: #313136; color: #666; }
+        .btn-go:disabled { background: #313136; color: #666; box-shadow: none; }
 
         .footer-link {
-            margin-top: 25px;
+            margin-top: 30px;
             color: var(--ios-gray-text);
             font-size: 13px;
             text-decoration: none;
+            opacity: 0.8;
         }
 
-        /* 編輯視窗 */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 85%; max-width: 320px;
+            width: 80%; max-width: 300px;
             background: #1C1C1E;
-            padding: 24px;
-            border-radius: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            padding: 25px;
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
             z-index: 100;
         }
 
         textarea {
-            width: 100%; height: 140px; background: #2C2C2E; color: #fff;
+            width: 100%; height: 150px; background: #2C2C2E; color: #fff;
             border: 1px solid #3A3A3C; border-radius: 12px; padding: 12px;
-            font-size: 16px; outline: none; margin-top: 10px; box-sizing: border-box;
+            font-size: 16px; outline: none; margin-top: 15px; box-sizing: border-box;
         }
 
         .modal-done {
             width: 100%; padding: 14px; background: var(--ios-blue);
             color: #fff; border: none; border-radius: 12px; margin-top: 15px; font-weight: 700;
         }
-
     </style>
 </head>
 <body class="mode-out">
@@ -250,12 +248,11 @@
         </div>
     </div>
 
-    <!-- 主機台 -->
+    <!-- 4x5 機台 -->
     <div class="machine-container" id="grid">
         <div class="center-control">
-            <div id="res" class="result-display">READY?</div>
+            <div id="res" class="result-display">吃啥？</div>
             
-            <!-- 置中切換按鈕 -->
             <div class="segmented-control">
                 <div class="segment-slider"></div>
                 <div id="tab-out" class="segment-btn active" onclick="switchMode('out')">外食</div>
@@ -265,32 +262,34 @@
     </div>
 
     <!-- 押注區 2x6 -->
-    <div class="bet-grid" id="bets">
-        <!-- JS 動態生成 -->
-    </div>
+    <div class="bet-grid" id="bets"></div>
 
-    <!-- 四方按鈕區 -->
+    <!-- iOS 矩形按鈕 -->
     <div class="action-container">
-        <button id="clearBtn" class="ios-btn btn-clear" onclick="clearBets()">清除</button>
+        <button class="ios-btn btn-clear" onclick="clearBets()">清除</button>
         <button id="goBtn" class="ios-btn btn-go" onclick="spin()">GO</button>
     </div>
 
     <div class="footer-link" onclick="openModal()">⚙️ 編輯食物</div>
 
-    <!-- Modal -->
     <div class="modal" id="modal">
-        <h3 style="margin:0; font-size:18px;">編輯清單</h3>
+        <h3 style="margin:0; font-size:18px; text-align:center;">編輯清單</h3>
         <textarea id="foodInput"></textarea>
-        <button class="modal-done" onclick="saveFoods()">完成</button>
+        <button class="modal-done" onclick="saveFoods()">儲存</button>
     </div>
 
     <script>
         const icons = ["🍎", "🍉", "🍋", "🔔", "⭐", "7️⃣", "💎", "🍒", "🍇", "🍍", "🍓", "🥝"];
         const multi = { "🍎": 2, "🍉": 5, "🍋": 10, "🔔": 15, "⭐": 20, "7️⃣": 50, "💎": 75, "🍒": 100, "🍇": 2, "🍍": 5, "🍓": 10, "🥝": 15 };
 
-        // 20格路徑
-        const path = [0,1,2,3,4,5,6,13,20,27,34,33,32,31,30,29,28,21,14,7];
-        const gridIcons = ["🍎","🍉","🍋","🍎","🔔","⭐","🍎","7️⃣","💎","🍎","🍒","🍇","🍎","🍉","🍋","🍎","🔔","⭐","7️⃣","🍒"];
+        // 14格繞圈路徑 (4x5 矩形周邊)
+        // 0 1 2 3
+        // 13    4
+        // 12    5
+        // 11    6
+        // 10 9 8 7
+        const path = [0,1,2,3, 7,11,15, 19,18,17,16, 12,8,4]; 
+        const gridIcons = ["🍎","🍉","🍋","🍎","🔔","⭐","🍎","7️⃣","💎","🍎","🍒","🍇","🍍","🍎"];
 
         let data = {
             out: ["拉麵", "滷肉飯", "義大利麵", "火鍋", "壽司", "漢堡", "炸雞", "燒肉", "河粉", "咖哩", "水餃", "便當"],
@@ -315,8 +314,10 @@
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.id = `p-${i}`;
-                cell.style.gridColumn = (pos % 7) + 1;
-                cell.style.gridRow = Math.floor(pos / 7) + 1;
+                // 計算 4x5 座標
+                cell.style.gridColumn = (pos % 4) + 1;
+                cell.style.gridRow = Math.floor(pos / 4) + 1;
+                
                 const icon = gridIcons[i];
                 const food = data[mode][icons.indexOf(icon)] || "---";
                 cell.innerHTML = `<span class="cell-icon">${icon}</span><span class="cell-food">${food}</span>`;
@@ -369,18 +370,18 @@
             if(running) return;
             running = true;
             document.getElementById('goBtn').disabled = true;
-            document.getElementById('res').innerText = "ROLLING...";
+            document.getElementById('res').innerText = "ROLLING";
             
             let cur = 0;
-            let totalSteps = 40 + Math.floor(Math.random() * 20);
-            let speed = 50;
+            let totalSteps = 30 + Math.floor(Math.random() * 20);
+            let speed = 60;
 
             const loop = () => {
                 document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
-                document.getElementById(`p-${cur % 20}`).classList.add('active');
+                document.getElementById(`p-${cur % 14}`).classList.add('active');
                 cur++;
                 if(cur < totalSteps) {
-                    if(cur > totalSteps - 10) speed += 60;
+                    if(cur > totalSteps - 8) speed += 70;
                     setTimeout(loop, speed);
                 } else {
                     finish(cur - 1);
@@ -392,7 +393,7 @@
         function finish(idx) {
             running = false;
             document.getElementById('goBtn').disabled = false;
-            const finalPos = idx % 20;
+            const finalPos = idx % 14;
             const icon = gridIcons[finalPos];
             const food = data[mode][icons.indexOf(icon)];
             document.getElementById('res').innerText = food;
