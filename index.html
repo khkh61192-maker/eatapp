@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>吃啥 - Pro Max Glass</title>
+    <title>吃啥 - 美食麻仔台</title>
     <style>
         :root {
             --ios-bg: #000000;
             --ios-glass: rgba(255, 255, 255, 0.1);
             --ios-blue: #0A84FF;
             --ios-red: #FF3B30;
-            --ios-yellow: #E5FF00; /* 截圖中的 PHOTO 亮黃色 */
+            --ios-yellow: #E5FF00;
             --ios-gray-text: #8E8E93;
             --radius-pill: 500px;
-            --section-gap: 12px; /* 統一的區塊間隔 */
+            --section-gap: 12px;
         }
 
         body {
@@ -24,20 +24,20 @@
             flex-direction: column;
             align-items: center;
             margin: 0;
-            /* 調整頂部間距，不貼邊 */
-            padding: calc(env(safe-area-inset-top) + 30px) 15px 40px 15px;
+            /* 頂部間距保持縮短 */
+            padding: calc(env(safe-area-inset-top) + 22px) 15px 40px 15px;
             color: white;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 1. 數據看版 */
+        /* 1. 數據看板 */
         .header {
             display: flex;
             width: 100%;
             max-width: 360px;
             gap: 15px;
-            margin-bottom: var(--section-gap); /* 統一間隔 */
+            margin-bottom: var(--section-gap);
         }
 
         .stat-box {
@@ -64,7 +64,7 @@
             box-sizing: border-box;
             border: 1px solid rgba(255,255,255,0.08);
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            margin-bottom: var(--section-gap); /* 統一間隔 */
+            margin-bottom: var(--section-gap);
         }
 
         .machine-grid {
@@ -113,9 +113,10 @@
             font-weight: 800;
             color: var(--ios-red);
             line-height: 1;
+            text-align: center;
         }
 
-        /* 膠囊切換鈕 (文字更名：外送/內用) */
+        /* 膠囊切換鈕 */
         .segmented-control {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(15px);
@@ -139,14 +140,12 @@
             transition: color 0.3s;
         }
 
-        .segment-btn.active { 
-            color: var(--ios-yellow); 
-        }
+        .segment-btn.active { color: var(--ios-yellow); }
 
         .segment-slider {
             position: absolute;
             top: 4px; left: 4px;
-            width: calc(50% - 4px);
+            width: calc(50% - 2px);
             height: calc(100% - 8px);
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(5px);
@@ -168,7 +167,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: var(--section-gap); /* 統一間隔 */
+            margin-bottom: var(--section-gap);
         }
 
         .bet-grid {
@@ -248,7 +247,6 @@
 
         .footer-link { margin-top: 25px; color: var(--ios-gray-text); font-size: 13px; cursor: pointer; opacity: 0.6; }
 
-        /* 彈窗 */
         .modal {
             display: none;
             position: fixed;
@@ -276,7 +274,6 @@
 </head>
 <body class="mode-out">
 
-    <!-- 區塊 1 -->
     <div class="header">
         <div class="stat-box">
             <div class="stat-label">Credit</div>
@@ -288,7 +285,6 @@
         </div>
     </div>
 
-    <!-- 區塊 2 -->
     <div class="machine-section">
         <div class="machine-grid" id="grid">
             <div class="center-control">
@@ -303,12 +299,10 @@
         </div>
     </div>
 
-    <!-- 區塊 3 -->
     <div class="bet-section">
         <div class="bet-grid" id="bets"></div>
     </div>
 
-    <!-- 區塊 4 (按鈕列) -->
     <div class="action-bar">
         <button class="ios-btn-pill btn-clear" onclick="clearBets()">CLEAR</button>
         <button id="goBtn" class="ios-btn-pill btn-go" onclick="spin()">GO</button>
@@ -323,13 +317,15 @@
     </div>
 
     <script>
-        const iconLib = ["🍎", "🍉", "🍋", "🔔", "⭐", "7️⃣", "💎", "🍒", "🍇", "🍍", "🍓", "🥝", "🍔", "🍕"];
-        const multi = { "🍎": 2, "🍉": 5, "🍋": 10, "🔔": 15, "⭐": 20, "7️⃣": 50, "💎": 75, "🍒": 100, "🍇": 2, "🍍": 5, "🍓": 10, "🥝": 15, "🍔": 20, "🍕": 30 };
+        // 更新圖示庫為美食主題
+        const iconLib = ["🥟", "🍣", "🍲", "🍱", "🍜", "🍕", "🍔", "🍗", "🥩", "🍚", "🌮", "🍝", "🥪", "🍤"];
+        const multi = { "🥟": 2, "🍣": 5, "🍲": 10, "🍱": 15, "🍜": 20, "🍕": 30, "🍔": 50, "🍗": 75, "🥩": 100, "🍚": 2, "🌮": 5, "🍝": 10, "🥪": 15, "🍤": 20 };
         const path = [0,1,2,3, 7,11,15, 19,18,17,16, 12,8,4]; 
 
+        // 預設清單優化
         let data = {
-            out: ["拉麵", "滷肉飯", "義大利麵", "火鍋", "壽司", "漢堡", "炸雞", "燒肉", "河粉", "咖哩", "水餃", "便當", "鐵板燒", "牛排"],
-            home: ["煮泡麵", "水餃", "炒飯", "叫外送", "拌麵", "氣炸鍋", "稀飯", "吐司", "罐頭", "水果", "濃湯", "麥片", "微波食品", "滷味"]
+            out: ["煎餃鍋貼", "迴轉壽司", "麻辣火鍋", "日式便當", "牛肉麵", "義式披薩", "美式漢堡", "韓式炸雞", "高級牛排", "滷肉飯", "墨西哥餅", "義大利麵", "總匯三明治", "炸蝦定食"],
+            home: ["冷凍水餃", "外送壽司", "自煮火鍋", "微波便當", "泡麵", "外送披薩", "速食漢堡", "氣炸雞腿", "煎小牛排", "白飯配菜", "捲餅自製", "番茄麵", "果醬吐司", "冷凍炸蝦"]
         };
 
         let mode = 'out';
@@ -458,13 +454,6 @@
                 document.getElementById('winner').innerText = win;
                 updateUI();
             }
-            
-            setTimeout(() => {
-                if(!running) {
-                    resEl.innerText = "啥";
-                    resEl.style.fontSize = "58px";
-                }
-            }, 3000);
         }
 
         function openModal() {
