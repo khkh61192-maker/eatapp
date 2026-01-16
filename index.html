@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>吃啥 - iOS Pro Max</title>
+    <title>吃啥 - Pro Max</title>
     <style>
         :root {
             --ios-bg: #000000;
             --ios-card: #1C1C1E;
             --ios-item: #2C2C2E;
             --ios-blue: #0A84FF;
-            --ios-red: #FF3B30; /* iOS Notification Red */
+            --ios-red: #FF3B30;
             --ios-gray-text: #8E8E93;
             --radius-main: 28px;
         }
@@ -29,7 +29,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 數據看版 */
+        /* 頂部數據 */
         .header {
             display: flex;
             width: 100%;
@@ -50,10 +50,10 @@
         .stat-label { font-size: 11px; color: var(--ios-gray-text); font-weight: 600; text-transform: uppercase; }
         .stat-value { font-size: 24px; font-weight: 700; color: white; margin-top: 2px; }
 
-        /* 上方跑馬燈區域 */
+        /* 跑馬燈主區塊 */
         .machine-section {
             background: var(--ios-card);
-            padding: 15px;
+            padding: 12px;
             border-radius: var(--radius-main);
             width: 100%;
             max-width: 360px;
@@ -67,7 +67,7 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             grid-template-rows: repeat(5, 1fr);
-            gap: 10px;
+            gap: 8px;
             aspect-ratio: 4 / 5;
         }
 
@@ -84,17 +84,16 @@
 
         .cell.active {
             background: var(--ios-blue);
-            box-shadow: 0 0 20px var(--ios-blue);
+            box-shadow: 0 0 25px var(--ios-blue);
             transform: scale(1.08);
             z-index: 10;
             border-color: #fff;
         }
 
-        .cell-icon { font-size: 28px; }
-        .cell-food { font-size: 9px; color: #aaa; margin-top: 4px; font-weight: 500; }
-        .active .cell-food { color: #fff; }
+        .cell-icon { font-size: 38px; line-height: 1; }
+        .cell-food { font-size: 9px; color: #aaa; margin-top: 5px; font-weight: 600; }
 
-        /* 中間控制區 */
+        /* --- 中間視覺重構 (依照截圖修改) --- */
         .center-control {
             grid-column: 2 / 4;
             grid-row: 2 / 5;
@@ -102,31 +101,39 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 5px;
         }
 
-        .result-display {
-            font-size: 20px;
-            font-weight: 800;
+        .big-text {
+            font-size: 56px;
+            font-weight: 900;
             color: var(--ios-red);
-            text-align: center;
-            height: 24px;
+            line-height: 1;
+            text-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
+            transition: all 0.3s;
+        }
+
+        .result-mode {
+            font-size: 20px; /* 當顯示結果時字縮小一點點以免破版 */
+            letter-spacing: -1px;
         }
 
         .segmented-control {
             background: #313136;
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             padding: 2px;
-            width: 120px;
+            width: 130px;
             position: relative;
+            margin: 10px 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         .segment-btn {
             flex: 1;
-            padding: 7px 0;
+            padding: 8px 0;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             color: #fff;
             text-align: center;
             cursor: pointer;
@@ -140,15 +147,15 @@
             width: calc(50% - 2px);
             height: calc(100% - 4px);
             background: #fff;
-            border-radius: 8px;
+            border-radius: 10px;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .mode-home .segment-slider { transform: translateX(100%); }
 
-        /* 下方押注區域 */
+        /* 押注區 */
         .bet-section {
             background: var(--ios-card);
-            padding: 20px 10px;
+            padding: 18px 10px;
             border-radius: var(--radius-main);
             width: 100%;
             max-width: 360px;
@@ -162,7 +169,7 @@
         .bet-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 12px 10px; /* 縮小間距使其集中 */
+            gap: 12px 10px;
             width: 100%;
         }
 
@@ -184,34 +191,31 @@
             font-size: 24px;
             cursor: pointer;
             border: 1px solid rgba(255,255,255,0.05);
-            transition: transform 0.1s;
         }
 
         .circle-btn:active { transform: scale(0.9); }
         .circle-btn.has-bet { border-color: var(--ios-blue); background: #3a3a3c; }
 
-        /* iOS 通知紅點樣式 */
         .badge {
             position: absolute;
-            top: -5px;
-            left: -5px;
+            top: -4px;
+            left: -4px;
             background-color: var(--ios-red);
             color: white;
             font-size: 10px;
             font-weight: 700;
-            min-width: 16px;
-            height: 16px;
+            min-width: 17px;
+            height: 17px;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 4px;
-            box-sizing: border-box;
             border: 1.5px solid var(--ios-card);
-            display: none; /* 預設隱藏 */
+            display: none;
+            z-index: 5;
         }
 
-        /* 按鈕區 */
+        /* 控制鈕 */
         .action-bar {
             display: flex;
             width: 100%;
@@ -222,36 +226,34 @@
 
         .ios-btn {
             flex: 1;
-            height: 52px;
-            border-radius: 14px;
+            height: 54px;
+            border-radius: 15px;
             font-size: 17px;
-            font-weight: 600;
+            font-weight: 700;
             border: none;
             cursor: pointer;
         }
 
         .btn-go { background: var(--ios-blue); color: #fff; box-shadow: 0 5px 15px rgba(10, 132, 255, 0.3); }
-        .btn-clear { background: var(--ios-gray); color: #fff; background: #3a3a3c; }
+        .btn-clear { background: #3a3a3c; color: #fff; }
 
         .footer-link { margin-top: 20px; color: var(--ios-gray-text); font-size: 13px; cursor: pointer; opacity: 0.6; }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 85%; max-width: 300px;
+            width: 85%; max-width: 320px;
             background: #1C1C1E;
             padding: 25px; border-radius: 28px;
             z-index: 100;
-            box-shadow: 0 0 100px rgba(0,0,0,0.8);
         }
 
         textarea {
-            width: 100%; height: 160px; background: #2c2c2e; color: #fff;
+            width: 100%; height: 200px; background: #2c2c2e; color: #fff;
             border: 1px solid #3a3a3c; border-radius: 15px; padding: 12px;
-            font-size: 16px; box-sizing: border-box; margin-top: 15px;
+            font-size: 14px; box-sizing: border-box; margin-top: 15px;
         }
 
         .modal-done {
@@ -273,21 +275,23 @@
         </div>
     </div>
 
-    <!-- 跑馬燈機台區塊 -->
     <div class="machine-section">
         <div class="machine-grid" id="grid">
+            <!-- 中間控制區塊 (手繪版復刻) -->
             <div class="center-control">
-                <div id="res" class="result-display">EAT WHAT?</div>
+                <div class="big-text">吃</div>
+                
                 <div class="segmented-control">
                     <div class="segment-slider"></div>
                     <div id="tab-out" class="segment-btn active" onclick="switchMode('out')">外向吃</div>
                     <div id="tab-home" class="segment-btn" onclick="switchMode('home')">在內吃</div>
                 </div>
+
+                <div class="big-text" id="res">啥</div>
             </div>
         </div>
     </div>
 
-    <!-- 押注按鈕區塊 -->
     <div class="bet-section">
         <div class="bet-grid" id="bets"></div>
     </div>
@@ -297,25 +301,22 @@
         <button id="goBtn" class="ios-btn btn-go" onclick="spin()">GO</button>
     </div>
 
-    <div class="footer-link" onclick="openModal()">⚙️ 編輯食物內容</div>
+    <div class="footer-link" onclick="openModal()">⚙️ 編輯清單內容</div>
 
     <div class="modal" id="modal">
-        <h3 style="margin:0; text-align:center;">編輯清單</h3>
+        <h3 style="margin:0; text-align:center;">編輯 14 項食物</h3>
         <textarea id="foodInput"></textarea>
         <button class="modal-done" onclick="saveFoods()">儲存</button>
     </div>
 
     <script>
-        const icons = ["🍎", "🍉", "🍋", "🔔", "⭐", "7️⃣", "💎", "🍒", "🍇", "🍍", "🍓", "🥝"];
-        const multi = { "🍎": 2, "🍉": 5, "🍋": 10, "🔔": 15, "⭐": 20, "7️⃣": 50, "💎": 75, "🍒": 100, "🍇": 2, "🍍": 5, "🍓": 10, "🥝": 15 };
-
-        // 14格路徑 (4x5 矩形周邊)
+        const iconLib = ["🍎", "🍉", "🍋", "🔔", "⭐", "7️⃣", "💎", "🍒", "🍇", "🍍", "🍓", "🥝", "🍔", "🍕"];
+        const multi = { "🍎": 2, "🍉": 5, "🍋": 10, "🔔": 15, "⭐": 20, "7️⃣": 50, "💎": 75, "🍒": 100, "🍇": 2, "🍍": 5, "🍓": 10, "🥝": 15, "🍔": 20, "🍕": 30 };
         const path = [0,1,2,3, 7,11,15, 19,18,17,16, 12,8,4]; 
-        const gridIcons = ["🍎","🍉","🍋","🍎","🔔","⭐","🍎","7️⃣","💎","🍎","🍒","🍇","🍍","🍎"];
 
         let data = {
-            out: ["拉麵", "滷肉飯", "義大利麵", "火鍋", "壽司", "漢堡", "炸雞", "燒肉", "河粉", "咖哩", "水餃", "便當"],
-            home: ["煮泡麵", "水餃", "炒飯", "叫外送", "拌麵", "氣炸鍋", "稀飯", "吐司", "罐頭", "水果", "濃湯", "麥片"]
+            out: ["拉麵", "滷肉飯", "義大利麵", "火鍋", "壽司", "漢堡", "炸雞", "燒肉", "河粉", "咖哩", "水餃", "便當", "鐵板燒", "牛排"],
+            home: ["煮泡麵", "水餃", "炒飯", "叫外送", "拌麵", "氣炸鍋", "稀飯", "吐司", "罐頭", "水果", "濃湯", "麥片", "微波食品", "滷味"]
         };
 
         let mode = 'out';
@@ -338,8 +339,8 @@
                 cell.id = `p-${i}`;
                 cell.style.gridColumn = (pos % 4) + 1;
                 cell.style.gridRow = Math.floor(pos / 4) + 1;
-                const icon = gridIcons[i];
-                const food = data[mode][icons.indexOf(icon)] || "---";
+                const icon = iconLib[i];
+                const food = data[mode][i] || "---";
                 cell.innerHTML = `<span class="cell-icon">${icon}</span><span class="cell-food">${food}</span>`;
                 g.appendChild(cell);
             });
@@ -348,7 +349,8 @@
         function renderBets() {
             const bArea = document.getElementById('bets');
             bArea.innerHTML = "";
-            icons.forEach(icon => {
+            for (let i = 0; i < 12; i++) {
+                const icon = iconLib[i];
                 betPool[icon] = 0;
                 const container = document.createElement('div');
                 container.className = 'bet-item';
@@ -357,7 +359,7 @@
                     <div class="circle-btn" id="btn-${icon}" onclick="handleBet('${icon}')">${icon}</div>
                 `;
                 bArea.appendChild(container);
-            });
+            }
         }
 
         function handleBet(icon) {
@@ -368,17 +370,18 @@
 
         function updateUI() {
             document.getElementById('credit').innerText = credit;
-            icons.forEach(i => {
-                const b = document.getElementById(`badge-${i}`);
-                if (betPool[i] > 0) {
+            for (let i = 0; i < 12; i++) {
+                const icon = iconLib[i];
+                const b = document.getElementById(`badge-${icon}`);
+                if (betPool[icon] > 0) {
                     b.style.display = 'flex';
-                    b.innerText = betPool[i];
-                    document.getElementById(`btn-${i}`).classList.add('has-bet');
+                    b.innerText = betPool[icon];
+                    document.getElementById(`btn-${icon}`).classList.add('has-bet');
                 } else {
                     b.style.display = 'none';
-                    document.getElementById(`btn-${i}`).classList.remove('has-bet');
+                    document.getElementById(`btn-${icon}`).classList.remove('has-bet');
                 }
-            });
+            }
         }
 
         function switchMode(m) {
@@ -392,7 +395,11 @@
 
         function clearBets() {
             if(running) return;
-            icons.forEach(i => { credit += betPool[i]; betPool[i] = 0; });
+            for (let i = 0; i < 12; i++) {
+                const icon = iconLib[i];
+                credit += betPool[icon];
+                betPool[icon] = 0;
+            }
             updateUI();
         }
 
@@ -400,16 +407,20 @@
             if(running) return;
             running = true;
             document.getElementById('goBtn').disabled = true;
-            document.getElementById('res').innerText = "ROLLING";
+            
+            const resEl = document.getElementById('res');
+            resEl.innerText = "...";
+            resEl.classList.remove('result-mode');
+
             let cur = 0;
-            let totalSteps = 30 + Math.floor(Math.random() * 20);
+            let totalSteps = 42 + Math.floor(Math.random() * 14);
             let speed = 60;
             const loop = () => {
                 document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
                 document.getElementById(`p-${cur % 14}`).classList.add('active');
                 cur++;
                 if(cur < totalSteps) {
-                    if(cur > totalSteps - 8) speed += 70;
+                    if(cur > totalSteps - 10) speed += 75;
                     setTimeout(loop, speed);
                 } else {
                     finish(cur - 1);
@@ -422,15 +433,27 @@
             running = false;
             document.getElementById('goBtn').disabled = false;
             const finalPos = idx % 14;
-            const icon = gridIcons[finalPos];
-            const food = data[mode][icons.indexOf(icon)];
-            document.getElementById('res').innerText = food;
-            if(betPool[icon] > 0) {
+            const icon = iconLib[finalPos];
+            const food = data[mode][finalPos];
+            
+            const resEl = document.getElementById('res');
+            resEl.innerText = food;
+            resEl.classList.add('result-mode');
+
+            if(finalPos < 12 && betPool[icon] > 0) {
                 const win = betPool[icon] * multi[icon];
                 credit += win;
                 document.getElementById('winner').innerText = win;
                 updateUI();
             }
+            
+            // 3秒後恢復原本的 "啥"
+            setTimeout(() => {
+                if(!running) {
+                    resEl.innerText = "啥";
+                    resEl.classList.remove('result-mode');
+                }
+            }, 3000);
         }
 
         function openModal() {
@@ -439,7 +462,12 @@
         }
 
         function saveFoods() {
-            data[mode] = document.getElementById('foodInput').value.split('\n').map(s => s.trim().substring(0,7));
+            const list = document.getElementById('foodInput').value.split('\n').map(s => s.trim().substring(0,7)).filter(s => s !== "");
+            if(list.length < 14) {
+                alert("請輸入 14 項食物！");
+                return;
+            }
+            data[mode] = list.slice(0, 14);
             renderGrid();
             document.getElementById('modal').style.display = 'none';
         }
