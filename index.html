@@ -1,15 +1,15 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>吃啥 - Pro Max Foodie</title>
+    <title>吃啥 - Pro Max Clear</title>
     <style>
         :root {
             --ios-bg: #000000;
-            --ios-glass: rgba(255, 255, 255, 0.1);
+            --ios-glass: rgba(255, 255, 255, 0.08);
             --ios-blue: #0A84FF;
+            --ios-bright-blue: #54afff;
             --ios-red: #FF3B30;
             --ios-yellow: #E5FF00;
             --ios-gray-text: #8E8E93;
@@ -55,8 +55,8 @@
 
         /* 2. 跑馬燈主機 */
         .machine-section {
-            background: var(--ios-glass);
-            backdrop-filter: blur(25px);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
             padding: 12px;
             border-radius: 35px;
             width: 100%;
@@ -75,27 +75,36 @@
             aspect-ratio: 4 / 5;
         }
 
+        /* 基礎格子：降低背景亮度以增加對比 */
         .cell {
-            background: rgba(44, 44, 46, 0.6);
+            background: rgba(30, 30, 32, 0.8);
             border-radius: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-            border: 1px solid rgba(255,255,255,0.03);
+            /* 轉動時會切換成 .spinning 模式取消 transition */
+            transition: background 0.2s ease, transform 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
+        /* 旋轉中的狀態：取消所有動畫，防止霧化殘影 */
+        .machine-grid.spinning .cell {
+            transition: none !important;
+        }
+
+        /* 高亮格子：強化亮度與邊界，減少擴散 */
         .cell.active {
-            background: var(--ios-blue);
-            box-shadow: 0 0 25px var(--ios-blue);
-            transform: scale(1.08);
+            background: var(--ios-blue) !important;
+            box-shadow: 0 0 15px rgba(10, 132, 255, 0.8); /* 縮小發光範圍 */
+            transform: scale(1.05);
             z-index: 10;
-            border-color: #fff;
+            border: 2px solid #FFFFFF; /* 強制白邊，增加清晰度 */
         }
 
         .cell-icon { font-size: 38px; line-height: 1; }
         .cell-food { font-size: 9px; color: #aaa; margin-top: 5px; font-weight: 600; }
+        .cell.active .cell-food { color: #fff; }
 
         /* 中間控制區域 */
         .center-control {
@@ -130,10 +139,8 @@
             width: calc(50% - 2px);
             height: calc(100% - 8px);
             background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(5px);
             border-radius: var(--radius-pill);
             transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
-            border: 1px solid rgba(255,255,255,0.1);
         }
         .mode-home .segment-slider { transform: translateX(100%); }
 
@@ -154,40 +161,39 @@
 
         .bet-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px 10px; width: 100%; }
         .bet-item { display: flex; flex-direction: column; align-items: center; position: relative; }
-        .circle-btn { width: 46px; height: 46px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
-        .circle-btn.has-bet { border-color: var(--ios-blue); background: rgba(10, 132, 255, 0.2); }
+        .circle-btn { width: 46px; height: 46px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
+        .circle-btn.has-bet { border-color: var(--ios-blue); background: rgba(10, 132, 255, 0.3); }
         .badge { position: absolute; top: -4px; left: -4px; background-color: var(--ios-red); color: white; font-size: 10px; font-weight: 700; min-width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid #1c1c1e; z-index: 5; display: none; }
 
         /* 橢圓行動按鈕 */
         .action-bar { display: flex; width: 100%; max-width: 360px; gap: 15px; }
-        .ios-btn-pill { flex: 1; height: 58px; border-radius: var(--radius-pill); font-size: 18px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; letter-spacing: 1px; backdrop-filter: blur(10px); }
+        .ios-btn-pill { flex: 1; height: 58px; border-radius: var(--radius-pill); font-size: 18px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; letter-spacing: 1px; }
         .btn-go { background: var(--ios-blue); color: #fff; box-shadow: 0 8px 20px rgba(10, 132, 255, 0.3); }
         .btn-clear { background: rgba(255, 255, 255, 0.15); color: #fff; border: 1px solid rgba(255,255,255,0.1); }
         .ios-btn-pill:active { transform: scale(0.95); opacity: 0.8; }
 
         .footer-link { margin-top: 25px; color: var(--ios-gray-text); font-size: 13px; cursor: pointer; opacity: 0.6; }
 
-        /* 編輯彈窗 */
+        /* 彈窗 */
         .modal {
             display: none;
             position: fixed;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             width: 90%; max-width: 340px;
-            background: rgba(28, 28, 30, 0.95);
-            backdrop-filter: blur(35px);
+            background: rgba(28, 28, 30, 0.98);
+            backdrop-filter: blur(40px);
             padding: 25px; border-radius: 40px;
             z-index: 100;
             border: 1px solid rgba(255,255,255,0.1);
         }
 
         .modal-header { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 20px; }
-
-        #edit-container { max-height: 400px; overflow-y: auto; padding-right: 5px; scrollbar-width: thin; scrollbar-color: var(--ios-blue) transparent; }
-        .edit-row { display: flex; align-items: center; background: rgba(255, 255, 255, 0.05); margin-bottom: 10px; padding: 8px 15px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.03); }
+        #edit-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .edit-row { display: flex; align-items: center; background: rgba(255, 255, 255, 0.05); margin-bottom: 10px; padding: 8px 15px; border-radius: 18px; }
         .edit-icon-label { font-size: 24px; margin-right: 15px; width: 30px; text-align: center; }
         .edit-input { background: transparent; border: none; color: white; font-size: 16px; font-weight: 500; width: 100%; outline: none; }
-        .modal-done { width: 100%; padding: 16px; background: var(--ios-blue); color: #fff; border: none; border-radius: 20px; margin-top: 20px; font-weight: 700; font-size: 17px; }
+        .modal-done { width: 100%; padding: 16px; background: var(--ios-blue); color: #fff; border: none; border-radius: 20px; margin-top: 20px; font-weight: 700; }
     </style>
 </head>
 <body class="mode-out">
@@ -222,7 +228,6 @@
     </div>
 
     <div class="action-bar">
-        <!-- 恢復按鈕 -->
         <button class="ios-btn-pill btn-clear" onclick="clearBets()">CLEAR</button>
         <button id="goBtn" class="ios-btn-pill btn-go" onclick="spin()">GO</button>
     </div>
@@ -241,7 +246,7 @@
         const path = [0,1,2,3, 7,11,15, 19,18,17,16, 12,8,4]; 
 
         let data = {
-            out: ["八方鍋貼", "迴轉壽司", "石二鍋", "雞腿便當", "牛肉麵", "必勝客", "漢堡類", "肯德基或bbq", "牛小弟", "老婆煮飯^^", "滷味or米粉湯", "義大利麵", "熱炒", "好聚會"],
+            out: ["煎餃鍋貼", "迴轉壽司", "麻辣火鍋", "日式便當", "牛肉麵", "義式披薩", "美式漢堡", "韓式炸雞", "高級牛排", "滷肉飯", "墨西哥餅", "義大利麵", "總匯三明治", "炸蝦定食"],
             home: ["冷凍水餃", "外送壽司", "自煮火鍋", "微波便當", "泡麵", "外送披薩", "速食漢堡", "氣炸雞腿", "煎小牛排", "白飯配菜", "捲餅自製", "番茄麵", "果醬吐司", "冷凍炸蝦"]
         };
 
@@ -319,28 +324,17 @@
             renderGrid();
         }
 
-        // --- CLEAR 按鈕新邏輯：全面恢復 ---
         function clearBets() {
             if(running) return;
-
-            // 1. 恢復分數
             credit = 100;
-            
-            // 2. 恢復中間文字為 "啥"
             const resEl = document.getElementById('res');
             resEl.innerText = "啥";
             resEl.style.fontSize = "58px";
-            
-            // 3. 恢復 Winner 分數
             document.getElementById('winner').innerText = "0";
-
-            // 4. 清除所有押注
             for (let i = 0; i < 12; i++) {
                 const icon = iconLib[i];
                 betPool[icon] = 0;
             }
-            
-            // 5. 更新 UI
             updateUI();
         }
 
@@ -348,6 +342,10 @@
             if(running) return;
             running = true;
             document.getElementById('goBtn').disabled = true;
+            
+            // 加入 spinning class 取消動畫，讓跳轉變清晰
+            document.getElementById('grid').classList.add('spinning');
+
             const resEl = document.getElementById('res');
             resEl.innerText = "...";
             resEl.style.fontSize = "30px";
@@ -357,7 +355,9 @@
             let speed = 60;
             const loop = () => {
                 document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
-                document.getElementById(`p-${cur % 14}`).classList.add('active');
+                const activeCell = document.getElementById(`p-${cur % 14}`);
+                if (activeCell) activeCell.classList.add('active');
+                
                 cur++;
                 if(cur < totalSteps) {
                     if(cur > totalSteps - 10) speed += 75;
@@ -372,6 +372,10 @@
         function finish(idx) {
             running = false;
             document.getElementById('goBtn').disabled = false;
+            
+            // 結束旋轉，移除 spinning class 恢復平滑
+            document.getElementById('grid').classList.remove('spinning');
+
             const finalPos = idx % 14;
             const icon = iconLib[finalPos];
             const food = data[mode][finalPos];
@@ -394,7 +398,7 @@
             iconLib.forEach((icon, index) => {
                 const row = document.createElement('div');
                 row.className = 'edit-row';
-                row.innerHTML = `<span class="edit-icon-label">${icon}</span><input class="edit-input" type="text" value="${data[mode][index] || ''}" maxlength="7" placeholder="輸入食物名稱">`;
+                row.innerHTML = `<span class="edit-icon-label">${icon}</span><input class="edit-input" type="text" value="${data[mode][index] || ''}" maxlength="7" placeholder="食物名稱">`;
                 container.appendChild(row);
             });
             document.getElementById('modal').style.display = 'block';
