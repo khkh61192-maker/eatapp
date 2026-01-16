@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>吃啥 - Pro Max</title>
+    <title>吃啥 - iOS Pro Max</title>
     <style>
         :root {
             --ios-bg: #000000;
-            --ios-glass: rgba(255, 255, 255, 0.12);
-            --ios-glass-border: rgba(255, 255, 255, 0.15);
+            --ios-card: #1C1C1E;
+            --ios-item: #2C2C2E;
             --ios-blue: #0A84FF;
-            --ios-red: #FF453A;
-            --ios-control-bg: rgba(44, 44, 46, 0.8); /* 控制中心圓形背景 */
+            --ios-red: #FF3B30; /* iOS Notification Red */
             --ios-gray-text: #8E8E93;
-            --radius-square: 22px; /* iOS App 圖示圓角 */
+            --radius-main: 28px;
         }
 
         body {
             background-color: var(--ios-bg);
-            background-image: radial-gradient(circle at 50% 0%, #1c1c1e 0%, #000000 70%);
+            background-image: radial-gradient(circle at 50% 10%, #1c1c1e 0%, #000000 80%);
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             display: flex;
             flex-direction: column;
@@ -28,67 +27,71 @@
             color: white;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            min-height: 100vh;
         }
 
         /* 數據看版 */
         .header {
             display: flex;
             width: 100%;
-            max-width: 350px;
+            max-width: 360px;
             gap: 15px;
-            margin: 20px 0;
+            margin-bottom: 15px;
         }
 
         .stat-box {
             flex: 1;
-            background: var(--ios-glass);
-            backdrop-filter: blur(20px);
+            background: var(--ios-card);
             padding: 12px;
-            border-radius: 20px;
+            border-radius: 22px;
             text-align: center;
-            border: 1px solid var(--ios-glass-border);
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .stat-label { font-size: 10px; color: var(--ios-gray-text); font-weight: 600; text-transform: uppercase; }
-        .stat-value { font-size: 22px; font-weight: 700; color: white; margin-top: 2px; }
+        .stat-label { font-size: 11px; color: var(--ios-gray-text); font-weight: 600; text-transform: uppercase; }
+        .stat-value { font-size: 24px; font-weight: 700; color: white; margin-top: 2px; }
 
-        /* 4x5 跑馬燈機台 */
-        .machine-container {
+        /* 上方跑馬燈區域 */
+        .machine-section {
+            background: var(--ios-card);
+            padding: 15px;
+            border-radius: var(--radius-main);
+            width: 100%;
+            max-width: 360px;
+            box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+
+        .machine-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             grid-template-rows: repeat(5, 1fr);
-            gap: 12px; /* 加大間距 */
-            width: 100%;
-            max-width: 350px;
+            gap: 10px;
             aspect-ratio: 4 / 5;
-            position: relative;
         }
 
-        /* 方形格子設計 (參考截圖1) */
         .cell {
-            background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
-            backdrop-filter: blur(10px);
-            border-radius: var(--radius-square);
+            background: var(--ios-item);
+            border-radius: 18px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-            border: 1px solid var(--ios-glass-border);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.03);
         }
 
         .cell.active {
             background: var(--ios-blue);
-            box-shadow: 0 0 25px var(--ios-blue);
-            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--ios-blue);
+            transform: scale(1.08);
             z-index: 10;
             border-color: #fff;
         }
 
-        .cell-icon { font-size: 32px; } /* 圖示放大 */
-        .cell-food { font-size: 9px; color: #ddd; margin-top: 4px; font-weight: 500; }
+        .cell-icon { font-size: 28px; }
+        .cell-food { font-size: 9px; color: #aaa; margin-top: 4px; font-weight: 500; }
         .active .cell-food { color: #fff; }
 
         /* 中間控制區 */
@@ -99,30 +102,29 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
         }
 
         .result-display {
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 800;
             color: var(--ios-red);
             text-align: center;
-            height: 30px;
-            text-shadow: 0 0 10px rgba(255, 69, 58, 0.3);
+            height: 24px;
         }
 
         .segmented-control {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            background: #313136;
+            border-radius: 10px;
             display: flex;
             padding: 2px;
-            width: 130px;
+            width: 120px;
             position: relative;
         }
 
         .segment-btn {
             flex: 1;
-            padding: 8px 0;
+            padding: 7px 0;
             font-size: 13px;
             font-weight: 600;
             color: #fff;
@@ -132,63 +134,90 @@
         }
 
         .segment-btn.active { color: #000; }
-
         .segment-slider {
             position: absolute;
             top: 2px; left: 2px;
             width: calc(50% - 2px);
             height: calc(100% - 4px);
             background: #fff;
-            border-radius: 10px;
+            border-radius: 8px;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
         .mode-home .segment-slider { transform: translateX(100%); }
 
-        /* 押注區 (2x6 圓形按鈕, 參考截圖2) */
-        .bet-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 15px 10px;
+        /* 下方押注區域 */
+        .bet-section {
+            background: var(--ios-card);
+            padding: 20px 10px;
+            border-radius: var(--radius-main);
             width: 100%;
             max-width: 360px;
-            margin-top: 30px;
-        }
-
-        .bet-circle {
+            box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.05);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
+        }
+
+        .bet-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px 10px; /* 縮小間距使其集中 */
+            width: 100%;
+        }
+
+        .bet-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
         }
 
         .circle-btn {
-            width: 48px;
-            height: 48px;
-            background: var(--ios-control-bg);
+            width: 46px;
+            height: 46px;
+            background: var(--ios-item);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 24px;
             cursor: pointer;
             border: 1px solid rgba(255,255,255,0.05);
-            transition: all 0.1s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
         }
 
-        .circle-btn:active { transform: scale(0.9); background: #3a3a3c; }
-        .circle-btn.has-bet { background: var(--ios-blue); border-color: #fff; }
+        .circle-btn:active { transform: scale(0.9); }
+        .circle-btn.has-bet { border-color: var(--ios-blue); background: #3a3a3c; }
 
-        .bet-count { font-size: 12px; font-weight: 700; color: var(--ios-blue); }
+        /* iOS 通知紅點樣式 */
+        .badge {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            background-color: var(--ios-red);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            box-sizing: border-box;
+            border: 1.5px solid var(--ios-card);
+            display: none; /* 預設隱藏 */
+        }
 
-        /* iOS 長方形按鈕 */
-        .action-container {
+        /* 按鈕區 */
+        .action-bar {
             display: flex;
             width: 100%;
             max-width: 360px;
-            gap: 15px;
-            margin-top: 35px;
+            gap: 12px;
+            margin-top: 20px;
         }
 
         .ios-btn {
@@ -201,11 +230,10 @@
             cursor: pointer;
         }
 
-        .btn-go { background: var(--ios-blue); color: #fff; box-shadow: 0 4px 15px rgba(10, 132, 255, 0.4); }
-        .btn-clear { background: #2c2c2e; color: #fff; }
-        .ios-btn:active { opacity: 0.7; }
+        .btn-go { background: var(--ios-blue); color: #fff; box-shadow: 0 5px 15px rgba(10, 132, 255, 0.3); }
+        .btn-clear { background: var(--ios-gray); color: #fff; background: #3a3a3c; }
 
-        .footer-link { margin-top: 30px; color: var(--ios-gray-text); font-size: 13px; cursor: pointer; }
+        .footer-link { margin-top: 20px; color: var(--ios-gray-text); font-size: 13px; cursor: pointer; opacity: 0.6; }
 
         /* Modal */
         .modal {
@@ -213,9 +241,9 @@
             position: fixed;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%; max-width: 300px;
-            background: #1c1c1e;
-            padding: 25px; border-radius: 30px;
+            width: 85%; max-width: 300px;
+            background: #1C1C1E;
+            padding: 25px; border-radius: 28px;
             z-index: 100;
             box-shadow: 0 0 100px rgba(0,0,0,0.8);
         }
@@ -236,33 +264,35 @@
 
     <div class="header">
         <div class="stat-box">
-            <div class="stat-label">CREDIT</div>
+            <div class="stat-label">Credit</div>
             <div id="credit" class="stat-value">100</div>
         </div>
         <div class="stat-box">
-            <div class="stat-label">WINNER</div>
+            <div class="stat-label">Winner</div>
             <div id="winner" class="stat-value" style="color:var(--ios-red)">0</div>
         </div>
     </div>
 
-    <!-- 4x5 跑馬燈機台 -->
-    <div class="machine-container" id="grid">
-        <div class="center-control">
-            <div id="res" class="result-display">EAT WHAT?</div>
-            
-            <div class="segmented-control">
-                <div class="segment-slider"></div>
-                <div id="tab-out" class="segment-btn active" onclick="switchMode('out')">外向吃</div>
-                <div id="tab-home" class="segment-btn" onclick="switchMode('home')">在內吃</div>
+    <!-- 跑馬燈機台區塊 -->
+    <div class="machine-section">
+        <div class="machine-grid" id="grid">
+            <div class="center-control">
+                <div id="res" class="result-display">EAT WHAT?</div>
+                <div class="segmented-control">
+                    <div class="segment-slider"></div>
+                    <div id="tab-out" class="segment-btn active" onclick="switchMode('out')">外向吃</div>
+                    <div id="tab-home" class="segment-btn" onclick="switchMode('home')">在內吃</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 押注區 (2x6 圓形) -->
-    <div class="bet-grid" id="bets"></div>
+    <!-- 押注按鈕區塊 -->
+    <div class="bet-section">
+        <div class="bet-grid" id="bets"></div>
+    </div>
 
-    <!-- 按鈕 -->
-    <div class="action-container">
+    <div class="action-bar">
         <button class="ios-btn btn-clear" onclick="clearBets()">清除</button>
         <button id="goBtn" class="ios-btn btn-go" onclick="spin()">GO</button>
     </div>
@@ -308,7 +338,6 @@
                 cell.id = `p-${i}`;
                 cell.style.gridColumn = (pos % 4) + 1;
                 cell.style.gridRow = Math.floor(pos / 4) + 1;
-                
                 const icon = gridIcons[i];
                 const food = data[mode][icons.indexOf(icon)] || "---";
                 cell.innerHTML = `<span class="cell-icon">${icon}</span><span class="cell-food">${food}</span>`;
@@ -322,11 +351,10 @@
             icons.forEach(icon => {
                 betPool[icon] = 0;
                 const container = document.createElement('div');
-                container.className = 'bet-circle';
-                
+                container.className = 'bet-item';
                 container.innerHTML = `
+                    <div class="badge" id="badge-${icon}">0</div>
                     <div class="circle-btn" id="btn-${icon}" onclick="handleBet('${icon}')">${icon}</div>
-                    <div id="c-${icon}" class="bet-count">0</div>
                 `;
                 bArea.appendChild(container);
             });
@@ -341,8 +369,15 @@
         function updateUI() {
             document.getElementById('credit').innerText = credit;
             icons.forEach(i => {
-                document.getElementById(`c-${i}`).innerText = betPool[i];
-                document.getElementById(`btn-${i}`).classList.toggle('has-bet', betPool[i] > 0);
+                const b = document.getElementById(`badge-${i}`);
+                if (betPool[i] > 0) {
+                    b.style.display = 'flex';
+                    b.innerText = betPool[i];
+                    document.getElementById(`btn-${i}`).classList.add('has-bet');
+                } else {
+                    b.style.display = 'none';
+                    document.getElementById(`btn-${i}`).classList.remove('has-bet');
+                }
             });
         }
 
@@ -366,11 +401,9 @@
             running = true;
             document.getElementById('goBtn').disabled = true;
             document.getElementById('res').innerText = "ROLLING";
-            
             let cur = 0;
             let totalSteps = 30 + Math.floor(Math.random() * 20);
             let speed = 60;
-
             const loop = () => {
                 document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
                 document.getElementById(`p-${cur % 14}`).classList.add('active');
@@ -392,7 +425,6 @@
             const icon = gridIcons[finalPos];
             const food = data[mode][icons.indexOf(icon)];
             document.getElementById('res').innerText = food;
-
             if(betPool[icon] > 0) {
                 const win = betPool[icon] * multi[icon];
                 credit += win;
@@ -411,7 +443,6 @@
             renderGrid();
             document.getElementById('modal').style.display = 'none';
         }
-
         init();
     </script>
 </body>
