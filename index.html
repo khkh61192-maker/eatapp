@@ -20,17 +20,18 @@
             background-image: radial-gradient(circle at 50% 15%, #2c2c2e 0%, #000000 85%);
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             display: flex; flex-direction: column; align-items: center; margin: 0;
-            /* 針對 iPhone 顯示優化：減少頂部填充，讓整體往上移 */
             padding: calc(env(safe-area-inset-top) + 5px) 10px 20px; 
             color: white;
-            user-select: none; overflow: hidden; /* 防止滾動 */
+            user-select: none; overflow: hidden;
             height: 100vh; box-sizing: border-box;
         }
 
         .header { display: flex; width: 100%; max-width: 360px; gap: 10px; margin-bottom: 8px; }
-        .stat-box { flex: 1; background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); padding: 8px; border-radius: 18px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .stat-label { font-size: 9px; color: var(--ios-gray); font-weight: 700; text-transform: uppercase; }
-        .stat-value { font-size: 20px; font-weight: 700; }
+        /* 增加 cursor:pointer 與 active 效果 */
+        .stat-box { flex: 1; background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); padding: 8px; border-radius: 18px; text-align: center; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: transform 0.1s; }
+        .stat-box:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
+        .stat-label { font-size: 9px; color: var(--ios-gray); font-weight: 700; text-transform: uppercase; pointer-events: none; }
+        .stat-value { font-size: 20px; font-weight: 700; pointer-events: none; }
 
         .machine-section {
             background: rgba(255,255,255,0.05); padding: 8px; border-radius: 25px;
@@ -85,7 +86,8 @@
 <body class="mode-out">
 
     <div class="header">
-        <div class="stat-box">
+        <!-- 增加 onclick 事件 -->
+        <div class="stat-box" onclick="editCredit()">
             <div class="stat-label">Credit</div>
             <div id="credit" class="stat-value">100</div>
         </div>
@@ -171,6 +173,22 @@
             updateUI();
         }
 
+        // --- 新增：編輯分數功能 ---
+        function editCredit() {
+            if (running) return;
+            let val = prompt("請輸入新的金額 (Credit):", credit);
+            if (val !== null) {
+                let num = parseInt(val);
+                if (!isNaN(num) && num >= 0) {
+                    credit = num;
+                    updateUI();
+                    localStorage.setItem('slot_credit', credit);
+                } else {
+                    alert("請輸入有效的數字");
+                }
+            }
+        }
+
         function renderGrid() {
             const grid = document.getElementById('grid');
             document.querySelectorAll('.cell').forEach(c => c.remove());
@@ -215,7 +233,6 @@
             
             const currentTotal = Object.values(bets).reduce((a, b) => a + b, 0);
             
-            // 如果當前沒下注，自動填入上次的下注
             if (currentTotal === 0) {
                 const lastTotal = Object.values(lastBets).reduce((a, b) => a + b, 0);
                 if (lastTotal > 0 && credit >= lastTotal) {
@@ -226,11 +243,10 @@
                     updateUI();
                     localStorage.setItem('slot_credit', credit);
                 } else {
-                    return; // 沒錢或沒上次紀錄
+                    return; 
                 }
             }
             
-            // 儲存這次下注作為下次的續押範本
             lastBets = JSON.parse(JSON.stringify(bets));
             localStorage.setItem('slot_last_bets', JSON.stringify(lastBets));
             
