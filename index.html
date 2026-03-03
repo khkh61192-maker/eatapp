@@ -3,197 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>吃啥 - Pro Max Clear</title>
+    <title>吃啥 - 旗艦麻仔台</title>
     <style>
         :root {
-            --ios-bg: #000000;
-            --ios-glass: rgba(255, 255, 255, 0.08);
+            --ios-bg: #1a1a1a;
+            --ios-card: #2C2C2E;
             --ios-blue: #0A84FF;
-            --ios-bright-blue: #54afff;
             --ios-red: #FF3B30;
-            --ios-yellow: #E5FF00;
-            --ios-gray-text: #8E8E93;
+            --ios-yellow: #FFD60A;
+            --ios-gray: #8E8E93;
             --radius-pill: 500px;
-            --section-gap: 12px;
         }
 
         body {
-            background-color: var(--ios-bg);
-            background-image: radial-gradient(circle at 50% 15%, #2c2c2e 0%, #000000 75%);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang TC", sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            padding: calc(env(safe-area-inset-top) + 22px) 15px 40px 15px;
-            color: white;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
+            background-color: #000;
+            background-image: radial-gradient(circle at 50% 15%, #2c2c2e 0%, #000000 85%);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex; flex-direction: column; align-items: center; margin: 0;
+            padding: calc(env(safe-area-inset-top) + 20px) 10px 40px; color: white;
+            user-select: none; overflow-x: hidden;
         }
 
-        /* 1. 數據看板 */
-        .header {
-            display: flex;
-            width: 100%;
-            max-width: 360px;
-            gap: 15px;
-            margin-bottom: var(--section-gap);
-        }
+        .header { display: flex; width: 100%; max-width: 360px; gap: 10px; margin-bottom: 15px; }
+        .stat-box { flex: 1; background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); padding: 12px; border-radius: 22px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .stat-label { font-size: 10px; color: var(--ios-gray); font-weight: 700; text-transform: uppercase; }
+        .stat-value { font-size: 24px; font-weight: 700; transition: all 0.3s; }
 
-        .stat-box {
-            flex: 1;
-            background: var(--ios-glass);
-            backdrop-filter: blur(20px);
-            padding: 12px;
-            border-radius: 24px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .stat-label { font-size: 11px; color: var(--ios-gray-text); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: white; margin-top: 2px; }
-
-        /* 2. 跑馬燈主機 */
         .machine-section {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            padding: 12px;
-            border-radius: 35px;
-            width: 100%;
-            max-width: 360px;
-            box-sizing: border-box;
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            margin-bottom: var(--section-gap);
+            background: rgba(255,255,255,0.05); padding: 12px; border-radius: 30px;
+            width: 100%; max-width: 380px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 15px;
         }
-
-        .machine-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-            gap: 8px;
-            aspect-ratio: 4 / 5;
-        }
-
-        /* 基礎格子：降低背景亮度以增加對比 */
+        .machine-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 8px; aspect-ratio: 4 / 5; }
+        
         .cell {
-            background: rgba(30, 30, 32, 0.8);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            /* 轉動時會切換成 .spinning 模式取消 transition */
-            transition: background 0.2s ease, transform 0.2s ease;
-            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(44, 44, 46, 0.7); border-radius: 18px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.03);
+            transition: background 0.1s, box-shadow 0.2s; position: relative;
+        }
+        
+        .cell.scanning-blue { background: var(--ios-blue) !important; border: 2px solid #fff; z-index: 5; box-shadow: 0 0 15px var(--ios-blue); }
+        .cell.win-blue { background: var(--ios-blue) !important; box-shadow: 0 0 25px var(--ios-blue); border: 2px solid #fff; z-index: 6; animation: win-pulse 0.5s infinite alternate; }
+        
+        .cell.scanning-yellow { background: var(--ios-yellow) !important; border: 2px solid #fff; z-index: 5; box-shadow: 0 0 15px var(--ios-yellow); }
+        .cell.win-yellow { background: var(--ios-yellow) !important; box-shadow: 0 0 25px var(--ios-yellow); border: 2px solid #fff; z-index: 7; animation: win-pulse 0.5s infinite alternate; }
+        .cell.win-yellow .cell-food { color: #000; }
+
+        @keyframes win-pulse {
+            from { transform: scale(1); filter: brightness(1); }
+            to { transform: scale(1.05); filter: brightness(1.3); }
         }
 
-        /* 旋轉中的狀態：取消所有動畫，防止霧化殘影 */
-        .machine-grid.spinning .cell {
-            transition: none !important;
-        }
+        .cell-icon { font-size: 34px; line-height: 1; }
+        .cell-food { font-size: 9px; color: #aaa; margin-top: 4px; font-weight: 700; text-align: center; }
+        .jackpot-label { color: #FFD60A; font-weight: 900; font-size: 9px; }
 
-        /* 高亮格子：強化亮度與邊界，減少擴散 */
-        .cell.active {
-            background: var(--ios-blue) !important;
-            box-shadow: 0 0 15px rgba(10, 132, 255, 0.8); /* 縮小發光範圍 */
-            transform: scale(1.05);
-            z-index: 10;
-            border: 2px solid #FFFFFF; /* 強制白邊，增加清晰度 */
-        }
-
-        .cell-icon { font-size: 38px; line-height: 1; }
-        .cell-food { font-size: 9px; color: #aaa; margin-top: 5px; font-weight: 600; }
-        .cell.active .cell-food { color: #fff; }
-
-        /* 中間控制區域 */
-        .center-control {
-            grid-column: 2 / 4;
-            grid-row: 2 / 5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-around;
-            padding: 10px 0;
-        }
-
-        .big-text { font-size: 58px; font-weight: 800; color: var(--ios-red); line-height: 1; text-align: center; }
-
-        .segmented-control {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            border-radius: var(--radius-pill);
-            display: flex;
-            padding: 4px;
-            width: 150px;
-            position: relative;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .segment-btn { flex: 1; padding: 10px 0; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.5); text-align: center; cursor: pointer; z-index: 1; transition: color 0.3s; }
-        .segment-btn.active { color: var(--ios-yellow); }
-
-        .segment-slider {
-            position: absolute;
-            top: 4px; left: 4px;
-            width: calc(50% - 2px);
-            height: calc(100% - 8px);
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: var(--radius-pill);
-            transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
-        }
+        .center-control { grid-column: 2 / 4; grid-row: 2 / 5; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 10px 0; }
+        .big-text { font-size: 44px; font-weight: 800; color: var(--ios-red); line-height: 1.2; text-align: center; width: 100%; word-break: break-all; min-height: 54px; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .win-animate { transform: scale(1.2); text-shadow: 0 0 20px rgba(255,59,48,0.5); }
+        
+        .segmented-control { background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-pill); display: flex; padding: 3px; width: 130px; position: relative; }
+        .segment-btn { flex: 1; padding: 8px 0; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.5); text-align: center; cursor: pointer; z-index: 1; }
+        .segment-btn.active { color: #000; }
+        .segment-slider { position: absolute; top: 3px; left: 3px; width: calc(50% - 3px); height: calc(100% - 6px); background: #fff; border-radius: var(--radius-pill); transition: transform 0.3s; }
         .mode-home .segment-slider { transform: translateX(100%); }
 
-        /* 3. 押注區 */
-        .bet-section {
-            background: var(--ios-glass);
-            padding: 20px 10px;
-            border-radius: 35px;
-            width: 100%;
-            max-width: 360px;
-            box-sizing: border-box;
-            border: 1px solid rgba(255,255,255,0.08);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: var(--section-gap);
-        }
-
-        .bet-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px 10px; width: 100%; }
+        .bet-section { background: rgba(255,255,255,0.05); padding: 15px 10px; border-radius: 30px; width: 100%; max-width: 380px; margin-bottom: 15px; }
+        .bet-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px 10px; }
         .bet-item { display: flex; flex-direction: column; align-items: center; position: relative; }
-        .circle-btn { width: 46px; height: 46px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
-        .circle-btn.has-bet { border-color: var(--ios-blue); background: rgba(10, 132, 255, 0.3); }
-        .badge { position: absolute; top: -4px; left: -4px; background-color: var(--ios-red); color: white; font-size: 10px; font-weight: 700; min-width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid #1c1c1e; z-index: 5; display: none; }
+        .circle-btn { width: 46px; height: 46px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.1s; }
+        .circle-btn:active { transform: scale(0.9); }
+        .circle-btn.has-bet { border: 2.5px solid var(--ios-blue); background: rgba(10, 132, 255, 0.2); }
+        .badge { position: absolute; top: -5px; left: -5px; background: var(--ios-red); color: #fff; font-size: 10px; font-weight: 700; min-width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid #000; display: none; z-index: 10; }
 
-        /* 橢圓行動按鈕 */
-        .action-bar { display: flex; width: 100%; max-width: 360px; gap: 15px; }
-        .ios-btn-pill { flex: 1; height: 58px; border-radius: var(--radius-pill); font-size: 18px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; letter-spacing: 1px; }
-        .btn-go { background: var(--ios-blue); color: #fff; box-shadow: 0 8px 20px rgba(10, 132, 255, 0.3); }
-        .btn-clear { background: rgba(255, 255, 255, 0.15); color: #fff; border: 1px solid rgba(255,255,255,0.1); }
-        .ios-btn-pill:active { transform: scale(0.95); opacity: 0.8; }
+        .action-bar { display: flex; width: 100%; max-width: 380px; gap: 10px; }
+        .ios-btn-pill { flex: 1; height: 58px; border-radius: var(--radius-pill); font-size: 16px; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; }
+        .btn-go { flex: 2; background: var(--ios-blue); color: #fff; box-shadow: 0 8px 20px rgba(10, 132, 255, 0.3); }
+        .btn-go:disabled { opacity: 0.5; box-shadow: none; }
+        .btn-clear { background: rgba(255, 255, 255, 0.1); color: #fff; }
+        .btn-re { background: rgba(255, 255, 255, 0.15); color: #fff; }
 
-        .footer-link { margin-top: 25px; color: var(--ios-gray-text); font-size: 13px; cursor: pointer; opacity: 0.6; }
-
-        /* 彈窗 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%; max-width: 340px;
-            background: rgba(28, 28, 30, 0.98);
-            backdrop-filter: blur(40px);
-            padding: 25px; border-radius: 40px;
-            z-index: 100;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .modal-header { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 20px; }
-        #edit-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
-        .edit-row { display: flex; align-items: center; background: rgba(255, 255, 255, 0.05); margin-bottom: 10px; padding: 8px 15px; border-radius: 18px; }
-        .edit-icon-label { font-size: 24px; margin-right: 15px; width: 30px; text-align: center; }
-        .edit-input { background: transparent; border: none; color: white; font-size: 16px; font-weight: 500; width: 100%; outline: none; }
-        .modal-done { width: 100%; padding: 16px; background: var(--ios-blue); color: #fff; border: none; border-radius: 20px; margin-top: 20px; font-weight: 700; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .edit-row { display: grid; grid-template-columns: 40px 1fr 50px 50px; gap: 8px; align-items: center; background: #1c1c1e; padding: 12px; border-radius: 15px; margin-bottom: 12px; }
+        .edit-input { background: #2c2c2e; border: none; color: #fff; padding: 8px; border-radius: 8px; width: 100%; font-size: 14px; outline: none; }
+        .close-btn { width: 100%; padding: 18px; background: var(--ios-blue); color: #fff; border: none; border-radius: 20px; font-weight: 700; margin-top: 10px; }
+        .reset-all-btn { width: 100%; padding: 12px; background: transparent; color: var(--ios-red); border: 1px solid var(--ios-red); border-radius: 20px; font-weight: 700; margin-top: 30px; margin-bottom: 40px; }
     </style>
 </head>
 <body class="mode-out">
@@ -212,13 +105,13 @@
     <div class="machine-section">
         <div class="machine-grid" id="grid">
             <div class="center-control">
-                <div class="big-text">吃</div>
+                <div id="big-top" class="big-text">吃</div>
                 <div class="segmented-control">
                     <div class="segment-slider"></div>
                     <div id="tab-out" class="segment-btn active" onclick="switchMode('out')">外送</div>
                     <div id="tab-home" class="segment-btn" onclick="switchMode('home')">內用</div>
                 </div>
-                <div class="big-text" id="res">啥</div>
+                <div id="big-bottom" class="big-text">啥</div>
             </div>
         </div>
     </div>
@@ -228,189 +121,325 @@
     </div>
 
     <div class="action-bar">
-        <button class="ios-btn-pill btn-clear" onclick="clearBets()">CLEAR</button>
-        <button id="goBtn" class="ios-btn-pill btn-go" onclick="spin()">GO</button>
+        <button class="ios-btn-pill btn-clear" onclick="clearBets()">清除</button>
+        <button class="ios-btn-pill btn-re" onclick="reBet()">續押</button>
+        <button id="goBtn" class="ios-btn-pill btn-go" onclick="startSpin()">GO</button>
     </div>
 
-    <div class="footer-link" onclick="openModal()">⚙️ Settings</div>
+    <div style="margin-top:25px; color:#8e8e93; font-size:13px; cursor:pointer;" onclick="openModal()">⚙️ 機台設定 / 重設分數</div>
 
-    <div class="modal" id="modal">
-        <div class="modal-header">編輯食物清單</div>
-        <div id="edit-container"></div>
-        <button class="modal-done" onclick="saveFoods()">Done</button>
+    <div id="modal" class="modal">
+        <h2 style="text-align:center;">機台設定</h2>
+        <div style="display:grid; grid-template-columns: 40px 1fr 50px 50px; padding: 0 12px 10px; color:#8e8e93; font-size:11px;">
+            <span>圖示</span><span>名稱</span><span>權重</span><span>倍率</span>
+        </div>
+        <div id="edit-list"></div>
+        <button class="close-btn" onclick="saveAndClose()">儲存並關閉</button>
+        <button class="reset-all-btn" onclick="resetGameData()">重置所有數據 (含分數)</button>
     </div>
 
     <script>
-        const iconLib = ["🥟", "🍣", "🍲", "🍱", "🍜", "🍕", "🍔", "🍗", "🥩", "🍚", "🌮", "🍝", "🥪", "🍤"];
-        const multi = { "🥟": 2, "🍣": 5, "🍲": 10, "🍱": 15, "🍜": 20, "🍕": 30, "🍔": 50, "🍗": 75, "🥩": 100, "🍚": 2, "🌮": 5, "🍝": 10, "🥪": 15, "🍤": 20 };
-        const path = [0,1,2,3, 7,11,15, 19,18,17,16, 12,8,4]; 
-
-        let data = {
-            out: ["煎餃鍋貼", "迴轉壽司", "麻辣火鍋", "日式便當", "牛肉麵", "義式披薩", "美式漢堡", "韓式炸雞", "高級牛排", "滷肉飯", "墨西哥餅", "義大利麵", "總匯三明治", "炸蝦定食"],
-            home: ["冷凍水餃", "外送壽司", "自煮火鍋", "微波便當", "泡麵", "外送披薩", "速食漢堡", "氣炸雞腿", "煎小牛排", "白飯配菜", "捲餅自製", "番茄麵", "果醬吐司", "冷凍炸蝦"]
-        };
-
-        let mode = 'out';
-        let credit = 100;
-        let betPool = {};
-        let running = false;
-
-        function init() {
-            renderGrid();
-            renderBets();
-            updateUI();
-        }
-
-        function renderGrid() {
-            const g = document.getElementById('grid');
-            document.querySelectorAll('.cell').forEach(c => c.remove());
-            path.forEach((pos, i) => {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.id = `p-${i}`;
-                cell.style.gridColumn = (pos % 4) + 1;
-                cell.style.gridRow = Math.floor(pos / 4) + 1;
-                const icon = iconLib[i];
-                const food = data[mode][i] || "---";
-                cell.innerHTML = `<span class="cell-icon">${icon}</span><span class="cell-food">${food}</span>`;
-                g.appendChild(cell);
-            });
-        }
-
-        function renderBets() {
-            const bArea = document.getElementById('bets');
-            bArea.innerHTML = "";
-            for (let i = 0; i < 12; i++) {
-                const icon = iconLib[i];
-                betPool[icon] = 0;
-                const container = document.createElement('div');
-                container.className = 'bet-item';
-                container.innerHTML = `
-                    <div class="badge" id="badge-${icon}">0</div>
-                    <div class="circle-btn" id="btn-${icon}" onclick="handleBet('${icon}')">${icon}</div>
-                `;
-                bArea.appendChild(container);
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
             }
         }
 
-        function handleBet(icon) {
-            if(running || credit <= 0) return;
-            credit--; betPool[icon]++;
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+
+        const sounds = {
+            tick: () => playTone(800, 'square', 0.05),
+            win: () => { playTone(1000, 'triangle', 0.2); setTimeout(() => playTone(1300, 'triangle', 0.3), 100); },
+            bigWin: () => { 
+                let f = 500; 
+                let i = setInterval(() => { playTone(f, 'sawtooth', 0.1, 0.15); f += 150; if(f>2500) clearInterval(i); }, 60);
+                setTimeout(() => clearInterval(i), 800);
+            }
+        };
+
+        const gridPath = [0,1,2,3, 7,11,15, 19, 18, 17, 16, 12, 8, 4]; 
+        const JACKPOT_PATH_INDEX = 8; 
+
+        let defaultItems = [
+            { icon: "🥟", out: "煎餃", home: "水餃", weight: 10, multi: 2 },
+            { icon: "🍣", out: "壽司", home: "壽司", weight: 8, multi: 5 },
+            { icon: "🍲", out: "火鍋", home: "火鍋", weight: 5, multi: 10 },
+            { icon: "🍱", out: "便當", home: "便當", weight: 5, multi: 15 },
+            { icon: "🍜", out: "拉麵", home: "拉麵", weight: 3, multi: 20 },
+            { icon: "🍕", out: "披薩", home: "披薩", weight: 2, multi: 30 },
+            { icon: "🍔", out: "漢堡", home: "漢堡", weight: 1, multi: 50 },
+            { icon: "🍗", out: "炸雞", home: "炸雞", weight: 1, multi: 80 },
+            { icon: "🍡", out: "中大獎", home: "中大獎", weight: 1, multi: 0 }, 
+            { icon: "🍚", out: "滷肉飯", home: "滷肉飯", weight: 10, multi: 2 },
+            { icon: "🌮", out: "捲餅", home: "捲餅", weight: 8, multi: 5 },
+            { icon: "🍝", out: "意麵", home: "意麵", weight: 5, multi: 10 },
+            { icon: "🥪", out: "三明治", home: "三明治", weight: 5, multi: 15 },
+            { icon: "🍤", out: "炸蝦", home: "炸蝦", weight: 3, multi: 20 }
+        ];
+
+        let items = [];
+        let credit = 100, winner = 0, mode = 'out', bets = {}, lastBets = {}, running = false;
+
+        function init() {
+            // 從 LocalStorage 載入資料
+            const savedItems = localStorage.getItem('slot_items');
+            const savedCredit = localStorage.getItem('slot_credit');
+            items = savedItems ? JSON.parse(savedItems) : JSON.parse(JSON.stringify(defaultItems));
+            credit = savedCredit ? parseInt(savedCredit) : 100;
+
+            renderGrid();
+            renderBetButtons();
             updateUI();
+        }
+
+        function saveToLocal() {
+            localStorage.setItem('slot_items', JSON.stringify(items));
+            localStorage.setItem('slot_credit', credit.toString());
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+            document.querySelectorAll('.cell').forEach(c => c.remove());
+            gridPath.forEach((pos, i) => {
+                const div = document.createElement('div');
+                div.className = 'cell'; div.id = `path-${i}`;
+                div.style.gridColumn = (pos % 4) + 1; 
+                div.style.gridRow = Math.floor(pos / 4) + 1;
+                let displayText = mode === 'out' ? items[i].out : items[i].home;
+                div.innerHTML = `<span class="cell-icon">${items[i].icon}</span><span class="cell-food">${i === JACKPOT_PATH_INDEX ? '<span class="jackpot-label">中大獎</span>' : displayText}</span>`;
+                grid.appendChild(div);
+            });
+        }
+
+        function renderBetButtons() {
+            const container = document.getElementById('bets');
+            container.innerHTML = "";
+            items.forEach((item, i) => {
+                if (i >= 12) return; 
+                const btn = document.createElement('div');
+                btn.className = 'bet-item';
+                btn.innerHTML = `<div class="badge" id="badge-${i}">0</div><div class="circle-btn" onclick="addBet(${i})">${item.icon}</div><div style="font-size:9px; color:#8e8e93; margin-top:4px; font-weight:700;">x${item.multi}</div>`;
+                container.appendChild(btn);
+                if (bets[i] === undefined) bets[i] = 0;
+            });
+        }
+
+        function addBet(idx) {
+            initAudio();
+            if (running || credit <= 0) return;
+            credit--; bets[idx]++; 
+            sounds.tick(); updateUI();
+            saveToLocal();
+        }
+
+        function clearBets() {
+            if (running) return;
+            // 這裡不重設 credit，只清除當前下注
+            Object.keys(bets).forEach(k => bets[k] = 0);
+            updateUI();
+        }
+
+        function reBet() {
+            if (running) return;
+            // 計算續押總額
+            const totalLastBet = Object.values(lastBets).reduce((a, b) => a + b, 0);
+            if (totalLastBet > 0 && credit >= totalLastBet) {
+                clearBets();
+                Object.keys(lastBets).forEach(k => {
+                    bets[k] = lastBets[k];
+                    credit -= lastBets[k];
+                });
+                sounds.tick();
+                updateUI();
+                saveToLocal();
+            }
         }
 
         function updateUI() {
             document.getElementById('credit').innerText = credit;
-            for (let i = 0; i < 12; i++) {
-                const icon = iconLib[i];
-                const b = document.getElementById(`badge-${icon}`);
-                if (betPool[icon] > 0) {
-                    b.style.display = 'flex';
-                    b.innerText = betPool[icon];
-                    document.getElementById(`btn-${icon}`).classList.add('has-bet');
-                } else {
-                    b.style.display = 'none';
-                    document.getElementById(`btn-${icon}`).classList.remove('has-bet');
+            document.getElementById('winner').innerText = winner;
+            Object.keys(bets).forEach(i => {
+                const b = document.getElementById(`badge-${i}`);
+                if (b) {
+                    if (bets[i] > 0) { b.style.display = 'flex'; b.innerText = bets[i]; b.parentElement.querySelector('.circle-btn').classList.add('has-bet'); }
+                    else { b.style.display = 'none'; b.parentElement.querySelector('.circle-btn').classList.remove('has-bet'); }
                 }
-            }
+            });
         }
 
-        function switchMode(m) {
-            if(running) return;
-            mode = m;
-            document.body.className = `mode-${m}`;
-            document.getElementById('tab-out').classList.toggle('active', m === 'out');
-            document.getElementById('tab-home').classList.toggle('active', m === 'home');
-            renderGrid();
+        async function startSpin() {
+            initAudio();
+            if (running) return;
+            if (Object.values(bets).every(v => v === 0)) return;
+
+            // 儲存這把的下注為「續押」範本
+            lastBets = JSON.parse(JSON.stringify(bets));
+            
+            running = true; winner = 0;
+            document.getElementById('goBtn').disabled = true;
+            document.getElementById('big-top').innerText = "吃";
+            document.getElementById('big-bottom').innerText = "啥";
+            document.getElementById('big-top').classList.remove('win-animate');
+            document.getElementById('big-bottom').classList.remove('win-animate');
+            
+            document.querySelectorAll('.cell').forEach(c => c.classList.remove('win-blue', 'win-yellow', 'scanning-blue', 'scanning-yellow'));
+
+            const target = getWeightedRandom();
+            await runMarquee(target, 'blue', 3, 0); 
+
+            if (target === JACKPOT_PATH_INDEX) {
+                sounds.bigWin();
+                document.getElementById('big-top').innerText = "大";
+                document.getElementById('big-bottom').innerText = "獎";
+                document.getElementById('big-top').classList.add('win-animate');
+                document.getElementById('big-bottom').classList.add('win-animate');
+                
+                await new Promise(r => setTimeout(r, 600));
+                
+                const extra1 = Math.floor(Math.random() * 14);
+                const extra2 = Math.floor(Math.random() * 14);
+                
+                await runMarquee(extra1, 'yellow', 1, target);
+                await runMarquee(extra2, 'yellow', 1, extra1);
+                
+                calculateTotalWin([target, extra1, extra2], true);
+            } else {
+                calculateTotalWin([target], false);
+            }
+
+            running = false;
+            document.getElementById('goBtn').disabled = false;
+            saveToLocal();
         }
 
-        function clearBets() {
-            if(running) return;
-            credit = 100;
-            const resEl = document.getElementById('res');
-            resEl.innerText = "啥";
-            resEl.style.fontSize = "58px";
-            document.getElementById('winner').innerText = "0";
-            for (let i = 0; i < 12; i++) {
-                const icon = iconLib[i];
-                betPool[icon] = 0;
+        function getWeightedRandom() {
+            const totalWeight = items.reduce((sum, i) => sum + i.weight, 0);
+            let r = Math.random() * totalWeight;
+            for (let i = 0; i < items.length; i++) {
+                if (r < items[i].weight) return i;
+                r -= items[i].weight;
             }
+            return 0;
+        }
+
+        function runMarquee(targetIndex, type, laps, startPos) {
+            return new Promise(resolve => {
+                let currentStep = 0;
+                let diff = (targetIndex - (startPos % 14) + 14) % 14;
+                let totalSteps = (14 * laps) + diff;
+                if (totalSteps === 0) totalSteps = 14;
+
+                const scanClass = type === 'blue' ? 'scanning-blue' : 'scanning-yellow';
+                const winClass = type === 'blue' ? 'win-blue' : 'win-yellow';
+
+                function tick() {
+                    document.querySelectorAll('.cell.' + scanClass).forEach(el => el.classList.remove(scanClass));
+                    let currentIndex = (startPos + currentStep) % 14;
+                    const cell = document.getElementById(`path-${currentIndex}`);
+                    cell.classList.add(scanClass);
+                    
+                    sounds.tick();
+                    currentStep++;
+
+                    if (currentStep <= totalSteps) {
+                        let speed = 60;
+                        if (totalSteps - currentStep < 10) speed = 60 + (10 - (totalSteps - currentStep)) * 40;
+                        setTimeout(tick, speed);
+                    } else {
+                        cell.classList.remove(scanClass);
+                        cell.classList.add(winClass);
+                        resolve();
+                    }
+                }
+                tick();
+            });
+        }
+
+        function calculateTotalWin(winIndices, isJackpot) {
+            let total = 0;
+            let lastFoodName = "";
+            winIndices.forEach(idx => {
+                const item = items[idx];
+                lastFoodName = mode === 'out' ? item.out : item.home;
+                if (bets[idx] && idx < 12) { 
+                    total += bets[idx] * item.multi;
+                }
+            });
+            winner = total; credit += total;
+            
+            if (!isJackpot) {
+                document.getElementById('big-top').innerText = "吃";
+                document.getElementById('big-bottom').innerText = lastFoodName;
+            }
+
+            if (total > 0) {
+                sounds.win();
+                document.getElementById('big-top').classList.add('win-animate');
+                document.getElementById('big-bottom').classList.add('win-animate');
+            }
+            
+            document.getElementById('big-bottom').style.fontSize = (isJackpot ? "44px" : (lastFoodName.length > 3 ? "32px" : "44px"));
+            
+            // 清除下注
+            Object.keys(bets).forEach(k => bets[k] = 0);
             updateUI();
         }
 
-        function spin() {
-            if(running) return;
-            running = true;
-            document.getElementById('goBtn').disabled = true;
-            
-            // 加入 spinning class 取消動畫，讓跳轉變清晰
-            document.getElementById('grid').classList.add('spinning');
-
-            const resEl = document.getElementById('res');
-            resEl.innerText = "...";
-            resEl.style.fontSize = "30px";
-
-            let cur = 0;
-            let totalSteps = 42 + Math.floor(Math.random() * 14);
-            let speed = 60;
-            const loop = () => {
-                document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
-                const activeCell = document.getElementById(`p-${cur % 14}`);
-                if (activeCell) activeCell.classList.add('active');
-                
-                cur++;
-                if(cur < totalSteps) {
-                    if(cur > totalSteps - 10) speed += 75;
-                    setTimeout(loop, speed);
-                } else {
-                    finish(cur - 1);
-                }
-            };
-            loop();
-        }
-
-        function finish(idx) {
-            running = false;
-            document.getElementById('goBtn').disabled = false;
-            
-            // 結束旋轉，移除 spinning class 恢復平滑
-            document.getElementById('grid').classList.remove('spinning');
-
-            const finalPos = idx % 14;
-            const icon = iconLib[finalPos];
-            const food = data[mode][finalPos];
-            
-            const resEl = document.getElementById('res');
-            resEl.innerText = food;
-            resEl.style.fontSize = "22px";
-
-            if(finalPos < 12 && betPool[icon] > 0) {
-                const win = betPool[icon] * multi[icon];
-                credit += win;
-                document.getElementById('winner').innerText = win;
-                updateUI();
-            }
+        function switchMode(m) {
+            if (running) return;
+            mode = m;
+            document.getElementById('tab-out').classList.toggle('active', m === 'out');
+            document.getElementById('tab-home').classList.toggle('active', m === 'home');
+            renderGrid(); updateUI();
         }
 
         function openModal() {
-            const container = document.getElementById('edit-container');
-            container.innerHTML = "";
-            iconLib.forEach((icon, index) => {
+            const list = document.getElementById('edit-list');
+            list.innerHTML = "";
+            items.forEach((item, i) => {
                 const row = document.createElement('div');
                 row.className = 'edit-row';
-                row.innerHTML = `<span class="edit-icon-label">${icon}</span><input class="edit-input" type="text" value="${data[mode][index] || ''}" maxlength="7" placeholder="食物名稱">`;
-                container.appendChild(row);
+                row.innerHTML = `
+                    <div style="font-size:20px">${item.icon}</div>
+                    <input class="edit-input" id="name-${i}" value="${mode === 'out' ? item.out : item.home}">
+                    <input type="number" class="edit-input" id="weight-${i}" value="${item.weight}">
+                    <input type="number" class="edit-input" id="multi-${i}" value="${item.multi}">
+                `;
+                list.appendChild(row);
             });
             document.getElementById('modal').style.display = 'block';
         }
 
-        function saveFoods() {
-            const inputs = document.querySelectorAll('.edit-input');
-            const newList = [];
-            inputs.forEach(input => newList.push(input.value.trim().substring(0, 7) || "---"));
-            data[mode] = newList;
-            renderGrid();
+        function saveAndClose() {
+            items.forEach((item, i) => {
+                const n = document.getElementById(`name-${i}`).value;
+                if (mode === 'out') item.out = n; else item.home = n;
+                item.weight = parseInt(document.getElementById(`weight-${i}`).value) || 1;
+                item.multi = parseInt(document.getElementById(`multi-${i}`).value) || 1;
+            });
+            saveToLocal();
+            renderGrid(); renderBetButtons(); updateUI();
             document.getElementById('modal').style.display = 'none';
+        }
+
+        function resetGameData() {
+            if (confirm("確定要重設所有數據嗎？這將會清空分數與自定義名稱。")) {
+                localStorage.clear();
+                location.reload();
+            }
         }
 
         init();
