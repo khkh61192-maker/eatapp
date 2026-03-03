@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>吃啥 - 旗艦麻仔台</title>
     <style>
         :root {
@@ -20,73 +20,66 @@
             background-image: radial-gradient(circle at 50% 15%, #2c2c2e 0%, #000000 85%);
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             display: flex; flex-direction: column; align-items: center; margin: 0;
-            padding: calc(env(safe-area-inset-top) + 20px) 10px 40px; color: white;
-            user-select: none; overflow-x: hidden;
+            /* 針對 iPhone 顯示優化：減少頂部填充，讓整體往上移 */
+            padding: calc(env(safe-area-inset-top) + 5px) 10px 20px; 
+            color: white;
+            user-select: none; overflow: hidden; /* 防止滾動 */
+            height: 100vh; box-sizing: border-box;
         }
 
-        .header { display: flex; width: 100%; max-width: 360px; gap: 10px; margin-bottom: 15px; }
-        .stat-box { flex: 1; background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); padding: 12px; border-radius: 22px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .stat-label { font-size: 10px; color: var(--ios-gray); font-weight: 700; text-transform: uppercase; }
-        .stat-value { font-size: 24px; font-weight: 700; transition: all 0.3s; }
+        .header { display: flex; width: 100%; max-width: 360px; gap: 10px; margin-bottom: 8px; }
+        .stat-box { flex: 1; background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); padding: 8px; border-radius: 18px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .stat-label { font-size: 9px; color: var(--ios-gray); font-weight: 700; text-transform: uppercase; }
+        .stat-value { font-size: 20px; font-weight: 700; }
 
         .machine-section {
-            background: rgba(255,255,255,0.05); padding: 12px; border-radius: 30px;
-            width: 100%; max-width: 380px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 15px;
+            background: rgba(255,255,255,0.05); padding: 8px; border-radius: 25px;
+            width: 100%; max-width: 360px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px;
         }
-        .machine-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 8px; aspect-ratio: 4 / 5; }
+        .machine-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 6px; aspect-ratio: 4 / 5; }
         
         .cell {
-            background: rgba(44, 44, 46, 0.7); border-radius: 18px; display: flex; flex-direction: column;
+            background: rgba(44, 44, 46, 0.7); border-radius: 14px; display: flex; flex-direction: column;
             align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.03);
-            transition: background 0.1s, box-shadow 0.2s; position: relative;
+            transition: background 0.1s; position: relative;
         }
         
         .cell.scanning-blue { background: var(--ios-blue) !important; border: 2px solid #fff; z-index: 5; box-shadow: 0 0 15px var(--ios-blue); }
         .cell.win-blue { background: var(--ios-blue) !important; box-shadow: 0 0 25px var(--ios-blue); border: 2px solid #fff; z-index: 6; animation: win-pulse 0.5s infinite alternate; }
-        
         .cell.scanning-yellow { background: var(--ios-yellow) !important; border: 2px solid #fff; z-index: 5; box-shadow: 0 0 15px var(--ios-yellow); }
         .cell.win-yellow { background: var(--ios-yellow) !important; box-shadow: 0 0 25px var(--ios-yellow); border: 2px solid #fff; z-index: 7; animation: win-pulse 0.5s infinite alternate; }
-        .cell.win-yellow .cell-food { color: #000; }
 
-        @keyframes win-pulse {
-            from { transform: scale(1); filter: brightness(1); }
-            to { transform: scale(1.05); filter: brightness(1.3); }
-        }
+        @keyframes win-pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
 
-        .cell-icon { font-size: 34px; line-height: 1; }
-        .cell-food { font-size: 9px; color: #aaa; margin-top: 4px; font-weight: 700; text-align: center; }
-        .jackpot-label { color: #FFD60A; font-weight: 900; font-size: 9px; }
+        .cell-icon { font-size: 28px; line-height: 1; }
+        .cell-food { font-size: 9px; color: #aaa; margin-top: 2px; font-weight: 700; text-align: center; }
 
-        .center-control { grid-column: 2 / 4; grid-row: 2 / 5; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 10px 0; }
-        .big-text { font-size: 44px; font-weight: 800; color: var(--ios-red); line-height: 1.2; text-align: center; width: 100%; word-break: break-all; min-height: 54px; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .center-control { grid-column: 2 / 4; grid-row: 2 / 5; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 5px 0; }
+        .big-text { font-size: 36px; font-weight: 800; color: var(--ios-red); text-align: center; min-height: 44px; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .win-animate { transform: scale(1.2); text-shadow: 0 0 20px rgba(255,59,48,0.5); }
         
-        .segmented-control { background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-pill); display: flex; padding: 3px; width: 130px; position: relative; }
-        .segment-btn { flex: 1; padding: 8px 0; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.5); text-align: center; cursor: pointer; z-index: 1; }
+        .segmented-control { background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-pill); display: flex; padding: 2px; width: 110px; position: relative; }
+        .segment-btn { flex: 1; padding: 6px 0; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); text-align: center; z-index: 1; }
         .segment-btn.active { color: #000; }
-        .segment-slider { position: absolute; top: 3px; left: 3px; width: calc(50% - 3px); height: calc(100% - 6px); background: #fff; border-radius: var(--radius-pill); transition: transform 0.3s; }
+        .segment-slider { position: absolute; top: 2px; left: 2px; width: calc(50% - 2px); height: calc(100% - 4px); background: #fff; border-radius: var(--radius-pill); transition: transform 0.3s; }
         .mode-home .segment-slider { transform: translateX(100%); }
 
-        .bet-section { background: rgba(255,255,255,0.05); padding: 15px 10px; border-radius: 30px; width: 100%; max-width: 380px; margin-bottom: 15px; }
-        .bet-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px 10px; }
+        .bet-section { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 25px; width: 100%; max-width: 360px; margin-bottom: 10px; }
+        .bet-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px 6px; }
         .bet-item { display: flex; flex-direction: column; align-items: center; position: relative; }
-        .circle-btn { width: 46px; height: 46px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.1s; }
-        .circle-btn:active { transform: scale(0.9); }
+        .circle-btn { width: 42px; height: 42px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 1px solid rgba(255,255,255,0.05); }
         .circle-btn.has-bet { border: 2.5px solid var(--ios-blue); background: rgba(10, 132, 255, 0.2); }
-        .badge { position: absolute; top: -5px; left: -5px; background: var(--ios-red); color: #fff; font-size: 10px; font-weight: 700; min-width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid #000; display: none; z-index: 10; }
+        .badge { position: absolute; top: -4px; left: -4px; background: var(--ios-red); color: #fff; font-size: 9px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid #000; display: none; }
 
-        .action-bar { display: flex; width: 100%; max-width: 380px; gap: 10px; }
-        .ios-btn-pill { flex: 1; height: 58px; border-radius: var(--radius-pill); font-size: 16px; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; }
-        .btn-go { flex: 2; background: var(--ios-blue); color: #fff; box-shadow: 0 8px 20px rgba(10, 132, 255, 0.3); }
-        .btn-go:disabled { opacity: 0.5; box-shadow: none; }
-        .btn-clear { background: rgba(255, 255, 255, 0.1); color: #fff; }
-        .btn-re { background: rgba(255, 255, 255, 0.15); color: #fff; }
+        .action-bar { display: flex; width: 100%; max-width: 360px; gap: 10px; }
+        .ios-btn-pill { border-radius: var(--radius-pill); font-size: 18px; font-weight: 700; border: none; cursor: pointer; height: 54px; }
+        .btn-go { flex: 3; background: var(--ios-blue); color: #fff; box-shadow: 0 5px 15px rgba(10, 132, 255, 0.3); }
+        .btn-clear { flex: 1; background: rgba(255, 255, 255, 0.15); color: #fff; font-size: 14px; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; padding: 20px; box-sizing: border-box; overflow-y: auto; }
-        .edit-row { display: grid; grid-template-columns: 40px 1fr 50px 50px; gap: 8px; align-items: center; background: #1c1c1e; padding: 12px; border-radius: 15px; margin-bottom: 12px; }
-        .edit-input { background: #2c2c2e; border: none; color: #fff; padding: 8px; border-radius: 8px; width: 100%; font-size: 14px; outline: none; }
-        .close-btn { width: 100%; padding: 18px; background: var(--ios-blue); color: #fff; border: none; border-radius: 20px; font-weight: 700; margin-top: 10px; }
-        .reset-all-btn { width: 100%; padding: 12px; background: transparent; color: var(--ios-red); border: 1px solid var(--ios-red); border-radius: 20px; font-weight: 700; margin-top: 30px; margin-bottom: 40px; }
+        .edit-row { display: grid; grid-template-columns: 40px 1fr 50px 50px; gap: 8px; align-items: center; background: #1c1c1e; padding: 10px; border-radius: 12px; margin-bottom: 8px; }
+        .edit-input { background: #2c2c2e; border: none; color: #fff; padding: 6px; border-radius: 6px; width: 100%; font-size: 13px; outline: none; }
+        .close-btn { width: 100%; padding: 15px; background: var(--ios-blue); color: #fff; border: none; border-radius: 15px; font-weight: 700; }
     </style>
 </head>
 <body class="mode-out">
@@ -121,59 +114,32 @@
     </div>
 
     <div class="action-bar">
-        <button class="ios-btn-pill btn-clear" onclick="clearBets()">清除</button>
-        <button class="ios-btn-pill btn-re" onclick="reBet()">續押</button>
-        <button id="goBtn" class="ios-btn-pill btn-go" onclick="startSpin()">GO</button>
+        <button class="ios-btn-pill btn-clear" onclick="clearBets()">CLEAR</button>
+        <button id="goBtn" class="ios-btn-pill btn-go" onclick="handleGo()">GO</button>
     </div>
 
-    <div style="margin-top:25px; color:#8e8e93; font-size:13px; cursor:pointer;" onclick="openModal()">⚙️ 機台設定 / 重設分數</div>
+    <div style="margin-top:15px; color:#8e8e93; font-size:12px;" onclick="openModal()">⚙️ 設定 / 重設</div>
 
     <div id="modal" class="modal">
         <h2 style="text-align:center;">機台設定</h2>
-        <div style="display:grid; grid-template-columns: 40px 1fr 50px 50px; padding: 0 12px 10px; color:#8e8e93; font-size:11px;">
-            <span>圖示</span><span>名稱</span><span>權重</span><span>倍率</span>
-        </div>
         <div id="edit-list"></div>
         <button class="close-btn" onclick="saveAndClose()">儲存並關閉</button>
-        <button class="reset-all-btn" onclick="resetGameData()">重置所有數據 (含分數)</button>
+        <button style="width:100%; background:none; border:none; color:red; margin-top:20px;" onclick="resetAll()">清空數據與分數</button>
     </div>
 
     <script>
         let audioCtx;
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
-
-        function playTone(freq, type, duration, vol = 0.1) {
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + duration);
-        }
-
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+        function playTone(f, t, d, v = 0.1) { if (!audioCtx) return; const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime); g.gain.setValueAtTime(v, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + d); }
+        
         const sounds = {
             tick: () => playTone(800, 'square', 0.05),
             win: () => { playTone(1000, 'triangle', 0.2); setTimeout(() => playTone(1300, 'triangle', 0.3), 100); },
-            bigWin: () => { 
-                let f = 500; 
-                let i = setInterval(() => { playTone(f, 'sawtooth', 0.1, 0.15); f += 150; if(f>2500) clearInterval(i); }, 60);
-                setTimeout(() => clearInterval(i), 800);
-            }
+            bigWin: () => { let f = 500, i = setInterval(() => { playTone(f, 'sawtooth', 0.1, 0.15); f += 150; if(f>2500) clearInterval(i); }, 60); setTimeout(() => clearInterval(i), 800); }
         };
 
-        const gridPath = [0,1,2,3, 7,11,15, 19, 18, 17, 16, 12, 8, 4]; 
-        const JACKPOT_PATH_INDEX = 8; 
-
-        let defaultItems = [
+        const gridPath = [0,1,2,3, 7,11,15, 19, 18, 17, 16, 12, 8, 4];
+        let items = [
             { icon: "🥟", out: "煎餃", home: "水餃", weight: 10, multi: 2 },
             { icon: "🍣", out: "壽司", home: "壽司", weight: 8, multi: 5 },
             { icon: "🍲", out: "火鍋", home: "火鍋", weight: 5, multi: 10 },
@@ -190,24 +156,19 @@
             { icon: "🍤", out: "炸蝦", home: "炸蝦", weight: 3, multi: 20 }
         ];
 
-        let items = [];
         let credit = 100, winner = 0, mode = 'out', bets = {}, lastBets = {}, running = false;
 
         function init() {
-            // 從 LocalStorage 載入資料
-            const savedItems = localStorage.getItem('slot_items');
+            const saved = localStorage.getItem('slot_items');
+            if (saved) items = JSON.parse(saved);
             const savedCredit = localStorage.getItem('slot_credit');
-            items = savedItems ? JSON.parse(savedItems) : JSON.parse(JSON.stringify(defaultItems));
-            credit = savedCredit ? parseInt(savedCredit) : 100;
+            if (savedCredit) credit = parseInt(savedCredit);
+            const savedLast = localStorage.getItem('slot_last_bets');
+            if (savedLast) lastBets = JSON.parse(savedLast);
 
             renderGrid();
             renderBetButtons();
             updateUI();
-        }
-
-        function saveToLocal() {
-            localStorage.setItem('slot_items', JSON.stringify(items));
-            localStorage.setItem('slot_credit', credit.toString());
         }
 
         function renderGrid() {
@@ -216,10 +177,9 @@
             gridPath.forEach((pos, i) => {
                 const div = document.createElement('div');
                 div.className = 'cell'; div.id = `path-${i}`;
-                div.style.gridColumn = (pos % 4) + 1; 
-                div.style.gridRow = Math.floor(pos / 4) + 1;
-                let displayText = mode === 'out' ? items[i].out : items[i].home;
-                div.innerHTML = `<span class="cell-icon">${items[i].icon}</span><span class="cell-food">${i === JACKPOT_PATH_INDEX ? '<span class="jackpot-label">中大獎</span>' : displayText}</span>`;
+                div.style.gridColumn = (pos % 4) + 1; div.style.gridRow = Math.floor(pos / 4) + 1;
+                let txt = mode === 'out' ? items[i].out : items[i].home;
+                div.innerHTML = `<span class="cell-icon">${items[i].icon}</span><span class="cell-food">${i === 8 ? '<span style="color:#FFD60A">中大獎</span>' : txt}</span>`;
                 grid.appendChild(div);
             });
         }
@@ -228,11 +188,10 @@
             const container = document.getElementById('bets');
             container.innerHTML = "";
             items.forEach((item, i) => {
-                if (i >= 12) return; 
-                const btn = document.createElement('div');
-                btn.className = 'bet-item';
-                btn.innerHTML = `<div class="badge" id="badge-${i}">0</div><div class="circle-btn" onclick="addBet(${i})">${item.icon}</div><div style="font-size:9px; color:#8e8e93; margin-top:4px; font-weight:700;">x${item.multi}</div>`;
-                container.appendChild(btn);
+                if (i >= 12) return;
+                const div = document.createElement('div'); div.className = 'bet-item';
+                div.innerHTML = `<div class="badge" id="badge-${i}">0</div><div class="circle-btn" onclick="addBet(${i})">${item.icon}</div><div style="font-size:9px; color:#8e8e93; margin-top:2px;">x${item.multi}</div>`;
+                container.appendChild(div);
                 if (bets[i] === undefined) bets[i] = 0;
             });
         }
@@ -240,32 +199,110 @@
         function addBet(idx) {
             initAudio();
             if (running || credit <= 0) return;
-            credit--; bets[idx]++; 
-            sounds.tick(); updateUI();
-            saveToLocal();
+            credit--; bets[idx]++; sounds.tick(); updateUI();
+            localStorage.setItem('slot_credit', credit);
         }
 
         function clearBets() {
             if (running) return;
-            // 這裡不重設 credit，只清除當前下注
             Object.keys(bets).forEach(k => bets[k] = 0);
             updateUI();
         }
 
-        function reBet() {
+        function handleGo() {
+            initAudio();
             if (running) return;
-            // 計算續押總額
-            const totalLastBet = Object.values(lastBets).reduce((a, b) => a + b, 0);
-            if (totalLastBet > 0 && credit >= totalLastBet) {
-                clearBets();
-                Object.keys(lastBets).forEach(k => {
-                    bets[k] = lastBets[k];
-                    credit -= lastBets[k];
-                });
-                sounds.tick();
-                updateUI();
-                saveToLocal();
+            
+            const currentTotal = Object.values(bets).reduce((a, b) => a + b, 0);
+            
+            // 如果當前沒下注，自動填入上次的下注
+            if (currentTotal === 0) {
+                const lastTotal = Object.values(lastBets).reduce((a, b) => a + b, 0);
+                if (lastTotal > 0 && credit >= lastTotal) {
+                    Object.keys(lastBets).forEach(k => {
+                        bets[k] = lastBets[k];
+                        credit -= lastBets[k];
+                    });
+                    updateUI();
+                    localStorage.setItem('slot_credit', credit);
+                } else {
+                    return; // 沒錢或沒上次紀錄
+                }
             }
+            
+            // 儲存這次下注作為下次的續押範本
+            lastBets = JSON.parse(JSON.stringify(bets));
+            localStorage.setItem('slot_last_bets', JSON.stringify(lastBets));
+            
+            startSpin();
+        }
+
+        async function startSpin() {
+            running = true; winner = 0;
+            document.getElementById('goBtn').disabled = true;
+            document.getElementById('big-top').classList.remove('win-animate');
+            document.getElementById('big-bottom').classList.remove('win-animate');
+            document.querySelectorAll('.cell').forEach(c => c.classList.remove('win-blue', 'win-yellow', 'scanning-blue', 'scanning-yellow'));
+
+            const target = getWeightedRandom();
+            await runMarquee(target, 'blue', 3, 0);
+
+            if (target === 8) {
+                sounds.bigWin();
+                document.getElementById('big-top').innerText = "大"; document.getElementById('big-bottom').innerText = "獎";
+                await new Promise(r => setTimeout(r, 600));
+                const e1 = Math.floor(Math.random() * 14), e2 = Math.floor(Math.random() * 14);
+                await runMarquee(e1, 'yellow', 1, target);
+                await runMarquee(e2, 'yellow', 1, e1);
+                calcWin([target, e1, e2], true);
+            } else {
+                calcWin([target], false);
+            }
+
+            running = false;
+            document.getElementById('goBtn').disabled = false;
+        }
+
+        function getWeightedRandom() {
+            const total = items.reduce((s, i) => s + i.weight, 0);
+            let r = Math.random() * total;
+            for (let i = 0; i < items.length; i++) { if (r < items[i].weight) return i; r -= items[i].weight; }
+            return 0;
+        }
+
+        function runMarquee(target, type, laps, start) {
+            return new Promise(resolve => {
+                let step = 0, diff = (target - (start % 14) + 14) % 14;
+                let totalSteps = (14 * laps) + diff;
+                const sCls = type === 'blue' ? 'scanning-blue' : 'scanning-yellow';
+                const wCls = type === 'blue' ? 'win-blue' : 'win-yellow';
+                function tick() {
+                    document.querySelectorAll('.' + sCls).forEach(el => el.classList.remove(sCls));
+                    const cell = document.getElementById(`path-${(start + step) % 14}`);
+                    cell.classList.add(sCls);
+                    sounds.tick(); step++;
+                    if (step <= totalSteps) {
+                        setTimeout(tick, step > totalSteps - 10 ? 60 + (10 - (totalSteps - step)) * 40 : 60);
+                    } else {
+                        cell.classList.remove(sCls); cell.classList.add(wCls); resolve();
+                    }
+                }
+                tick();
+            });
+        }
+
+        function calcWin(indices, isJ) {
+            let total = 0, name = "";
+            indices.forEach(idx => {
+                if (bets[idx] && idx < 12) total += bets[idx] * items[idx].multi;
+                name = mode === 'out' ? items[idx].out : items[idx].home;
+            });
+            winner = total; credit += total;
+            if (!isJ) { document.getElementById('big-top').innerText = "吃"; document.getElementById('big-bottom').innerText = name; }
+            if (total > 0) { sounds.win(); document.getElementById('big-top').classList.add('win-animate'); document.getElementById('big-bottom').classList.add('win-animate'); }
+            Object.keys(bets).forEach(k => bets[k] = 0);
+            updateUI();
+            localStorage.setItem('slot_credit', credit);
         }
 
         function updateUI() {
@@ -280,167 +317,25 @@
             });
         }
 
-        async function startSpin() {
-            initAudio();
-            if (running) return;
-            if (Object.values(bets).every(v => v === 0)) return;
-
-            // 儲存這把的下注為「續押」範本
-            lastBets = JSON.parse(JSON.stringify(bets));
-            
-            running = true; winner = 0;
-            document.getElementById('goBtn').disabled = true;
-            document.getElementById('big-top').innerText = "吃";
-            document.getElementById('big-bottom').innerText = "啥";
-            document.getElementById('big-top').classList.remove('win-animate');
-            document.getElementById('big-bottom').classList.remove('win-animate');
-            
-            document.querySelectorAll('.cell').forEach(c => c.classList.remove('win-blue', 'win-yellow', 'scanning-blue', 'scanning-yellow'));
-
-            const target = getWeightedRandom();
-            await runMarquee(target, 'blue', 3, 0); 
-
-            if (target === JACKPOT_PATH_INDEX) {
-                sounds.bigWin();
-                document.getElementById('big-top').innerText = "大";
-                document.getElementById('big-bottom').innerText = "獎";
-                document.getElementById('big-top').classList.add('win-animate');
-                document.getElementById('big-bottom').classList.add('win-animate');
-                
-                await new Promise(r => setTimeout(r, 600));
-                
-                const extra1 = Math.floor(Math.random() * 14);
-                const extra2 = Math.floor(Math.random() * 14);
-                
-                await runMarquee(extra1, 'yellow', 1, target);
-                await runMarquee(extra2, 'yellow', 1, extra1);
-                
-                calculateTotalWin([target, extra1, extra2], true);
-            } else {
-                calculateTotalWin([target], false);
-            }
-
-            running = false;
-            document.getElementById('goBtn').disabled = false;
-            saveToLocal();
-        }
-
-        function getWeightedRandom() {
-            const totalWeight = items.reduce((sum, i) => sum + i.weight, 0);
-            let r = Math.random() * totalWeight;
-            for (let i = 0; i < items.length; i++) {
-                if (r < items[i].weight) return i;
-                r -= items[i].weight;
-            }
-            return 0;
-        }
-
-        function runMarquee(targetIndex, type, laps, startPos) {
-            return new Promise(resolve => {
-                let currentStep = 0;
-                let diff = (targetIndex - (startPos % 14) + 14) % 14;
-                let totalSteps = (14 * laps) + diff;
-                if (totalSteps === 0) totalSteps = 14;
-
-                const scanClass = type === 'blue' ? 'scanning-blue' : 'scanning-yellow';
-                const winClass = type === 'blue' ? 'win-blue' : 'win-yellow';
-
-                function tick() {
-                    document.querySelectorAll('.cell.' + scanClass).forEach(el => el.classList.remove(scanClass));
-                    let currentIndex = (startPos + currentStep) % 14;
-                    const cell = document.getElementById(`path-${currentIndex}`);
-                    cell.classList.add(scanClass);
-                    
-                    sounds.tick();
-                    currentStep++;
-
-                    if (currentStep <= totalSteps) {
-                        let speed = 60;
-                        if (totalSteps - currentStep < 10) speed = 60 + (10 - (totalSteps - currentStep)) * 40;
-                        setTimeout(tick, speed);
-                    } else {
-                        cell.classList.remove(scanClass);
-                        cell.classList.add(winClass);
-                        resolve();
-                    }
-                }
-                tick();
-            });
-        }
-
-        function calculateTotalWin(winIndices, isJackpot) {
-            let total = 0;
-            let lastFoodName = "";
-            winIndices.forEach(idx => {
-                const item = items[idx];
-                lastFoodName = mode === 'out' ? item.out : item.home;
-                if (bets[idx] && idx < 12) { 
-                    total += bets[idx] * item.multi;
-                }
-            });
-            winner = total; credit += total;
-            
-            if (!isJackpot) {
-                document.getElementById('big-top').innerText = "吃";
-                document.getElementById('big-bottom').innerText = lastFoodName;
-            }
-
-            if (total > 0) {
-                sounds.win();
-                document.getElementById('big-top').classList.add('win-animate');
-                document.getElementById('big-bottom').classList.add('win-animate');
-            }
-            
-            document.getElementById('big-bottom').style.fontSize = (isJackpot ? "44px" : (lastFoodName.length > 3 ? "32px" : "44px"));
-            
-            // 清除下注
-            Object.keys(bets).forEach(k => bets[k] = 0);
-            updateUI();
-        }
-
-        function switchMode(m) {
-            if (running) return;
-            mode = m;
-            document.getElementById('tab-out').classList.toggle('active', m === 'out');
-            document.getElementById('tab-home').classList.toggle('active', m === 'home');
-            renderGrid(); updateUI();
-        }
-
+        function switchMode(m) { if (running) return; mode = m; document.body.className = 'mode-' + m; renderGrid(); updateUI(); }
         function openModal() {
-            const list = document.getElementById('edit-list');
-            list.innerHTML = "";
+            const list = document.getElementById('edit-list'); list.innerHTML = "";
             items.forEach((item, i) => {
-                const row = document.createElement('div');
-                row.className = 'edit-row';
-                row.innerHTML = `
-                    <div style="font-size:20px">${item.icon}</div>
-                    <input class="edit-input" id="name-${i}" value="${mode === 'out' ? item.out : item.home}">
-                    <input type="number" class="edit-input" id="weight-${i}" value="${item.weight}">
-                    <input type="number" class="edit-input" id="multi-${i}" value="${item.multi}">
-                `;
-                list.appendChild(row);
+                list.innerHTML += `<div class="edit-row"><div>${item.icon}</div><input class="edit-input" id="n-${i}" value="${mode === 'out' ? item.out : item.home}"><input type="number" class="edit-input" id="w-${i}" value="${item.weight}"><input type="number" class="edit-input" id="m-${i}" value="${item.multi}"></div>`;
             });
             document.getElementById('modal').style.display = 'block';
         }
-
         function saveAndClose() {
             items.forEach((item, i) => {
-                const n = document.getElementById(`name-${i}`).value;
+                const n = document.getElementById(`n-${i}`).value;
                 if (mode === 'out') item.out = n; else item.home = n;
-                item.weight = parseInt(document.getElementById(`weight-${i}`).value) || 1;
-                item.multi = parseInt(document.getElementById(`multi-${i}`).value) || 1;
+                item.weight = parseInt(document.getElementById(`w-${i}`).value) || 1;
+                item.multi = parseInt(document.getElementById(`m-${i}`).value) || 1;
             });
-            saveToLocal();
-            renderGrid(); renderBetButtons(); updateUI();
-            document.getElementById('modal').style.display = 'none';
+            localStorage.setItem('slot_items', JSON.stringify(items));
+            renderGrid(); renderBetButtons(); document.getElementById('modal').style.display = 'none';
         }
-
-        function resetGameData() {
-            if (confirm("確定要重設所有數據嗎？這將會清空分數與自定義名稱。")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
+        function resetAll() { if (confirm("確定清空所有數據嗎？")) { localStorage.clear(); location.reload(); } }
 
         init();
     </script>
